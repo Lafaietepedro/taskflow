@@ -1,74 +1,12 @@
-# TaskFlow - Modern To-Do List App
+# React + Vite
 
-Uma aplicação moderna de lista de tarefas construída com React e Tailwind CSS.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Características
+Currently, two official plugins are available:
 
-- ✅ Interface moderna e responsiva
-- 🎨 Design com efeito glass e gradientes
-- 📱 Compatível com dispositivos móveis
-- 🔍 Busca e filtros avançados
-- 📊 Prioridades coloridas para tarefas
-- 💾 Armazenamento local (localStorage)
-- ⚡ Animações suaves
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Estrutura do Projeto
+## Expanding the ESLint configuration
 
-```
-taskflow-todo-app/
-├── public/
-│   ├── index.html
-│   └── index.css
-├── src/
-│   ├── components/
-│   │   ├── TaskForm.js
-│   │   ├── TaskItem.js
-│   │   ├── TaskFilter.js
-│   │   └── TaskList.js
-│   ├── context/
-│   │   └── TodoContext.js
-│   └── index.js
-├── package.json
-└── README.md
-```
-
-## Como Executar
-
-1. Navegue até o diretório do projeto
-2. Execute o comando: `npm start` ou `python3 -m http.server 3000`
-3. Abra o navegador em `http://localhost:3000`
-
-## Funcionalidades
-
-### Gerenciamento de Tarefas
-- Adicionar novas tarefas com título, descrição e prioridade
-- Editar tarefas existentes
-- Marcar tarefas como concluídas
-- Excluir tarefas
-
-### Organização
-- Filtrar por: Todas, Ativas, Concluídas
-- Buscar tarefas por título ou descrição
-- Ordenar por: Data, Título, Prioridade
-
-### Interface
-- Design moderno com efeito glass
-- Cores diferenciadas por prioridade:
-  - 🔵 Baixa (Azul)
-  - 🟡 Média (Amarelo)
-  - 🔴 Alta (Vermelho)
-- Animações suaves para interações
-- Checkboxes customizados
-
-## Tecnologias Utilizadas
-
-- React 18
-- Tailwind CSS
-- JavaScript ES6+
-- HTML5
-- CSS3
-
-## Licença
-
-MIT License
-
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
