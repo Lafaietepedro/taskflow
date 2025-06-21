@@ -72,7 +72,7 @@ const TaskList = () => {
                 </div>
                 <input
                     type="text"
-                    placeholder="Search tasks..."
+                    placeholder="Procurar tarefas..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="search-input pl-12"
@@ -93,12 +93,12 @@ const TaskList = () => {
                         className="px-3 py-2 bg-white border-0 rounded-lg text-sm shadow-sm focus:ring-2
                         focus:ring-indigo-500 focus:outline-none"
                     >
-                        <option value="createdAt-desc">Date (Newest)</option>
-                        <option value="createdAt-asc">Date (Oldest)</option>
-                        <option value="title-asc">Title (A-Z)</option>
-                        <option value="title-desc">Title (Z-A)</option>
-                        <option value="priority-desc">Priority (High-Low)</option>
-                        <option value="priority-asc">Priority (Low-High)</option>
+                        <option value="createdAt-desc">Data (Mais Recente)</option>
+                        <option value="createdAt-asc">Data (Mais Antigo)</option>
+                        <option value="title-asc">Título (A-Z)</option>
+                        <option value="title-desc">Título (Z-A)</option>
+                        <option value="priority-desc">Prioridade (Alta-Baixa)</option>
+                        <option value="priority-asc">Prioridade (Baixa-Alta)</option>
                     </select>
                 </div>
             </div>
@@ -110,13 +110,13 @@ const TaskList = () => {
                         2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0
                         012-2h2a2 2 0 012 2M15 13l-3 3m0 0l-3-3m3 3V8" />
                     </svg>
-                    <p className="mt-4 text-gray-500 font-medium">No tasks found</p>
+                    <p className="mt-4 text-gray-500 font-medium">Nenhuma tarefa encontrada!</p>
                     <p className="text-gray-400 text-sm mt-1">
                         {filter !== 'all'
-                            ? `Try switching to "All" filter or create a new task`
+                            ? `Crie uma nova tarefa`
                             : searchTerm
-                                ? `No results for "${searchTerm}"`
-                                : `Start by adding your first task`}
+                                ? `Nenhum resultado para "${searchTerm}"`
+                                : `Adicione sua primeira tarefa`}
                     </p>
                 </div>
             ) : (
@@ -134,7 +134,7 @@ const TaskList = () => {
                                 onClick={clearCompletedTasks}
                                 className="text-indigo-600 hover:text-indigo-800 font-medium"
                             >
-                                Clear completed
+                                Limpar tarefa completas
                             </button>
                         )}
                     </div>
@@ -145,5 +145,3 @@ const TaskList = () => {
 };
 
 export default TaskList;
-
-

@@ -23,7 +23,7 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
                 <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                    Title
+                    Título
                 </label>
                 <input
                     type="text"
@@ -37,7 +37,7 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
             </div>
             <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                    Description (Optional)
+                    Descrição (Opcional)
                 </label>
                 <textarea
                     id="description"
@@ -50,7 +50,7 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
             </div>
             <div>
                 <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-1">
-                    Priority
+                    Prioridade
                 </label>
                 <div className="flex space-x-4">
                     {['low', 'medium', 'high'].map((p) => (

@@ -9,7 +9,7 @@ const TaskFilter = ({ filter, setFilter }) => {
                     ? "bg-indigo-100 text-indigo-800 font-medium"
                     : "bg-white text-gray-600 hover:bg-gray-50"}`}
             >
-                All
+                Todas
             </button>
             <button
                 onClick={() => setFilter("active")}
@@ -17,7 +17,7 @@ const TaskFilter = ({ filter, setFilter }) => {
                     ? "bg-indigo-100 text-indigo-800 font-medium"
                     : "bg-white text-gray-600 hover:bg-gray-50"}`}
             >
-                Active
+                Ativas
             </button>
             <button
                 onClick={() => setFilter("completed")}
@@ -25,7 +25,7 @@ const TaskFilter = ({ filter, setFilter }) => {
                     ? "bg-indigo-100 text-indigo-800 font-medium"
                     : "bg-white text-gray-600 hover:bg-gray-50"}`}
             >
-                Completed
+                Completas
             </button>
         </div>
     );
