@@ -3,7 +3,7 @@ import TodoApp from './components/TodoApp';
 import { useState, useEffect } from 'react';
 import { FaUser, FaLock } from 'react-icons/fa';
 
-const API_URL = 'http://localhost:5000'; // ajuste para produção depois
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'; // ajuste para produção depois
 
 function Auth({ onAuth }) {
   const [mode, setMode] = useState('login'); // 'login' ou 'register'
