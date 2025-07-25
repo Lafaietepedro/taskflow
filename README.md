@@ -1,13 +1,60 @@
-# 📝 Todo App com React + Tailwind CSS
+# TaskFlow
 
-Aplicativo de lista de tarefas (Todo List) desenvolvido com **React** e **Tailwind CSS**, com foco em design limpo, responsividade e usabilidade. Permite adicionar, completar, filtrar e remover tarefas, além de salvar os dados no navegador com `localStorage`.
+Organize suas tarefas com estilo!  
+Aplicação fullstack moderna com autenticação, CRUD de tarefas, responsividade e visual profissional.
 
-## 🎯 Funcionalidades
+![TaskFlow Demo](./public/demo.gif) <!-- Substitua por um GIF ou print do app -->
 
-- ✅ Adição e exclusão de tarefas
-- 🔄 Marcar como concluída/pendente
-- 🔍 Filtros: Todas, Ativas e Concluídas
-- 💾 Persistência de dados via `localStorage`
-- 📱 Interface responsiva e moderna
-- 🎨 Estilização com Tailwind CSS
-- ⚡ Animações sutis para interações
+## 🚀 Deploy
+
+- **Frontend:** [taskflowofc.vercel.app](https://seu-frontend.vercel.app)
+- **Backend:** [https://taskflow-dlfs.onrender.com](https://seu-backend.onrender.com)
+
+## ✨ Funcionalidades
+
+- Cadastro e login de usuário (JWT)
+- CRUD de tarefas por usuário autenticado
+- Busca, filtro e limpeza de tarefas concluídas
+- Feedback visual, loaders e animações
+- Design moderno e responsivo (Tailwind CSS)
+- API RESTful com Node.js, Express e MongoDB Atlas
+
+## 🛠️ Tecnologias
+
+- **Frontend:** React, Vite, Tailwind CSS, React Icons
+- **Backend:** Node.js, Express, MongoDB Atlas, JWT, bcryptjs
+- **Deploy:** Vercel (frontend), Render (backend)
+
+## ⚙️ Como rodar localmente
+
+### Backend
+
+```bash
+cd backend
+npm install
+# Crie o arquivo .env com suas variáveis (veja .env.example)
+npm run dev
+```
+
+### Frontend
+
+```bash
+npm install
+npm run dev
+```
+Acesse [http://localhost:5173](http://localhost:5173)
+
+## 💡 Diferenciais
+
+- Visual moderno com gradiente animado e glassmorphism
+- Autenticação real com JWT
+- Integração fullstack (React + Node + MongoDB)
+- Código limpo, componentizado e fácil de evoluir
+- Pronto para portfólio e entrevistas
+
+## 👤 Contato
+
+- [Seu LinkedIn](www.linkedin.com/in/lafaiete-almeida-dev)
+- [GitHub](https://github.com/Lafaietepedro)
+
+---
