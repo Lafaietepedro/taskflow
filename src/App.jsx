@@ -3,7 +3,7 @@ import TodoApp from './components/TodoApp';
 import { useState, useEffect } from 'react';
 import { FaUser, FaLock } from 'react-icons/fa';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'; // ajuste para produção depois
+const API_URL = 'http://localhost:5000'; // ajuste para produção depois
 
 function Auth({ onAuth }) {
   const [mode, setMode] = useState('login'); // 'login' ou 'register'
@@ -52,7 +52,7 @@ function Auth({ onAuth }) {
       <div className="fixed inset-0 z-0 w-full h-full bg-gradient-to-br from-violet-900 via-gray-900 to-gray-800 animate-bgMove" />
       <div className="fixed inset-0 z-0 w-full h-full bg-gradient-to-tr from-violet-700/30 via-violet-400/10 to-transparent blur-2xl opacity-60 animate-pulse-slow" />
       <form onSubmit={handleSubmit} className="relative z-10 w-full max-w-md p-8 md:p-12 rounded-3xl shadow-2xl border border-gray-700 bg-gray-800/80 backdrop-blur-xl flex flex-col items-center gap-2 animate-fadeIn">
-        <img src="/vite.svg" alt="Logo" className="w-16 h-16 mb-2 drop-shadow-lg animate-fadeIn" />
+        <img src="/task.svg" alt="Logo" className="w-16 h-16 mb-2 drop-shadow-lg animate-fadeIn" />
         <h2 className="text-4xl font-extrabold text-white mb-1 text-center tracking-tight drop-shadow">TaskFlow</h2>
         <p className="text-violet-300 text-base mb-6 text-center">Organize suas tarefas com estilo</p>
         <div className="w-full flex flex-col gap-4 mb-2">
