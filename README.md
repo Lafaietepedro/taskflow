@@ -17,7 +17,7 @@ Destaques do projeto:
 
 ## 🚀 Deploy
 
-- **Frontend:** [taskflowofc.vercel.app](https://seu-frontend.vercel.app)
+- **Frontend:** [https://taskflowofc.vercel.app](https://seu-frontend.vercel.app)
 - **Backend:** [https://taskflow-dlfs.onrender.com](https://seu-backend.onrender.com)
 
 ## ✨ Funcionalidades
