@@ -1,7 +1,17 @@
 # TaskFlow
 
-Organize suas tarefas com estilo!  
-Aplicação fullstack moderna com autenticação, CRUD de tarefas, responsividade e visual profissional.
+## Descrição
+
+**TaskFlow** é uma aplicação web fullstack para gerenciamento de tarefas.
+O sistema permite que usuários criem, visualizem, filtrem, atualizem e removam tarefas de forma segura e intuitiva, com autenticação real baseada em JWT e persistência de dados em banco de dados na nuvem (MongoDB Atlas).
+
+Destaques do projeto:
+- **Design moderno e responsivo**, com gradientes animados, efeito glassmorphism e experiência de usuário fluida.
+- **Autenticação e cadastro de usuários**, protegendo as tarefas de cada usuário.
+- **Integração real entre frontend e backend**, utilizando API RESTful desenvolvida em Node.js/Express.
+- **Feedback visual aprimorado**, com loaders, mensagens de sucesso/erro e animações suaves.
+- **Filtros dinâmicos** (todas, ativas, concluídas) e busca por texto para facilitar a organização.
+- **Deploy completo**: tanto o frontend quanto o backend estão publicados e prontos para uso.
 
 ![TaskFlow Demo](./public/demo.gif) <!-- Substitua por um GIF ou print do app -->
 
