@@ -13,12 +13,10 @@ Destaques do projeto:
 - **Filtros dinâmicos** (todas, ativas, concluídas) e busca por texto para facilitar a organização.
 - **Deploy completo**: tanto o frontend quanto o backend estão publicados e prontos para uso.
 
-![TaskFlow Demo](./public/demo.gif) <!-- Substitua por um GIF ou print do app -->
-
 ## 🚀 Deploy
 
-- **Frontend:** [https://taskflowofc.vercel.app](https://seu-frontend.vercel.app)
-- **Backend:** [https://taskflow-dlfs.onrender.com](https://seu-backend.onrender.com)
+- **Frontend:** [https://taskflowofc.vercel.app](https://taskflowofc.vercel.app)
+- **Backend:** [https://taskflow-dlfs.onrender.com](https://taskflow-dlfs.onrender.com)
 
 ## ✨ Funcionalidades
 
