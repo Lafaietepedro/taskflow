@@ -64,7 +64,7 @@ Acesse [http://localhost:5173](http://localhost:5173)
 
 ## 👤 Contato
 
-- [Seu LinkedIn](www.linkedin.com/in/lafaiete-almeida-dev)
+- [LinkedIn](https://www.linkedin.com/in/lafaiete-almeida-dev)
 - [GitHub](https://github.com/Lafaietepedro)
 
 ---
