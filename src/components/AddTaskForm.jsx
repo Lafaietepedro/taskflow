@@ -19,7 +19,7 @@ function AddTaskForm({ initialTask = null, onSubmitTask, onCancelEdit }) {
       return 'Nenhum item de checklist adicionado para a visita.';
     }
 
-    return `${form.checklistItems.length} item(ns) preparados para a execucao.`;
+    return `${form.checklistItems.length} item(ns) preparados para a execução.`;
   }, [form.checklistItems]);
 
   const isEditing = Boolean(initialTask?.id);
@@ -85,21 +85,21 @@ function AddTaskForm({ initialTask = null, onSubmitTask, onCancelEdit }) {
       <div className="panel-header panel-header--flush">
         <div>
           <span className="panel-kicker">Cadastro</span>
-          <h2 className="panel-title">{isEditing ? 'Editar ordem de servico' : 'Nova ordem de servico'}</h2>
-          <p className="panel-description">Registre cliente, data, contexto da visita e o checklist que vai guiar o tecnico no campo.</p>
+          <h2 className="panel-title">{isEditing ? 'Editar ordem de serviço' : 'Nova ordem de serviço'}</h2>
+          <p className="panel-description">Registre cliente, data, técnico, contexto da visita e o checklist que vai guiar a equipe no campo.</p>
         </div>
-        <span className="brand-subtitle">{isEditing ? 'Edicao ativa' : 'Entrada rapida'}</span>
+        <span className="brand-subtitle">{isEditing ? 'Edição ativa' : 'Entrada rápida'}</span>
       </div>
 
       <div className="form-grid">
         <div className="form-field form-grid__full">
-          <label htmlFor="order-title" className="field-label">Titulo do servico</label>
+          <label htmlFor="order-title" className="field-label">Título do serviço</label>
           <input
             id="order-title"
             type="text"
             value={form.title}
             onChange={updateField('title')}
-            placeholder="Ex.: Instalacao de camera no cliente Silva"
+            placeholder="Ex.: Instalação de câmera no cliente Silva"
             className="input"
             required
           />
@@ -131,12 +131,24 @@ function AddTaskForm({ initialTask = null, onSubmitTask, onCancelEdit }) {
         </div>
 
         <div className="form-field">
-          <label htmlFor="order-date" className="field-label">Data do servico</label>
+          <label htmlFor="order-date" className="field-label">Data do serviço</label>
           <input
             id="order-date"
             type="date"
             value={form.serviceDate}
             onChange={updateField('serviceDate')}
+            className="input"
+          />
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="order-technician" className="field-label">Técnico responsável</label>
+          <input
+            id="order-technician"
+            type="text"
+            value={form.assignedTechnician}
+            onChange={updateField('assignedTechnician')}
+            placeholder="Nome de quem vai executar"
             className="input"
           />
         </div>
@@ -150,25 +162,25 @@ function AddTaskForm({ initialTask = null, onSubmitTask, onCancelEdit }) {
             className="select"
           >
             <option value="low">Baixa</option>
-            <option value="medium">Media</option>
+            <option value="medium">Média</option>
             <option value="high">Alta</option>
           </select>
         </div>
 
         <div className="form-field form-grid__full">
-          <label htmlFor="order-address" className="field-label">Endereco</label>
+          <label htmlFor="order-address" className="field-label">Endereço</label>
           <input
             id="order-address"
             type="text"
             value={form.address}
             onChange={updateField('address')}
-            placeholder="Rua, numero, bairro e referencia"
+            placeholder="Rua, número, bairro e referência"
             className="input"
           />
         </div>
 
         <div className="form-field form-grid__full">
-          <label htmlFor="order-notes" className="field-label">Observacoes</label>
+          <label htmlFor="order-notes" className="field-label">Observações</label>
           <textarea
             id="order-notes"
             value={form.notes}
@@ -225,15 +237,15 @@ function AddTaskForm({ initialTask = null, onSubmitTask, onCancelEdit }) {
       </div>
 
       <div className="form-actions" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-        <p className="form-note">Dica: combine cliente, endereco e checklist para deixar a equipe pronta antes da saida.</p>
+        <p className="form-note">Dica: combine cliente, técnico, endereço e checklist para deixar a equipe pronta antes da saída.</p>
         <div className="button-row" style={{ justifyContent: 'flex-end' }}>
           {isEditing ? (
             <button type="button" onClick={onCancelEdit} className="button-ghost">
-              Cancelar edicao
+              Cancelar edição
             </button>
           ) : null}
           <button type="submit" disabled={submitting} className="button-primary">
-            {submitting ? 'Salvando...' : isEditing ? 'Salvar alteracoes' : 'Criar OS'}
+            {submitting ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Criar OS'}
           </button>
         </div>
       </div>

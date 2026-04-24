@@ -91,6 +91,10 @@ function buildTaskPayload(body = {}, { partial = false } = {}) {
     payload.address = String(body.address || '').trim();
   }
 
+  if (body.assignedTechnician !== undefined) {
+    payload.assignedTechnician = String(body.assignedTechnician || '').trim();
+  }
+
   if (body.checklistItems !== undefined) {
     payload.checklistItems = normalizeChecklistItems(body.checklistItems);
   }

@@ -24,6 +24,7 @@ function buildSearchableText(task) {
     task.customerName,
     task.customerPhone,
     task.address,
+    task.assignedTechnician,
     task.notes,
     ...(task.checklistItems || []).map((item) => item.label),
   ]
@@ -39,7 +40,7 @@ function formatDateLabel(dateValue) {
 
   const parsedDate = new Date(dateValue);
   if (Number.isNaN(parsedDate.getTime())) {
-    return 'Data invalida';
+    return 'Data inválida';
   }
 
   return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'medium' }).format(parsedDate);
@@ -61,6 +62,45 @@ function formatTimestamp(dateValue) {
   }).format(parsedDate);
 }
 
+function getLocalDate(value = new Date()) {
+  const date = new Date(value);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+function matchesPeriod(task, periodFilter) {
+  if (periodFilter === 'all') {
+    return true;
+  }
+
+  if (!task.serviceDate) {
+    return periodFilter === 'unscheduled';
+  }
+
+  const serviceDate = getLocalDate(task.serviceDate);
+  if (Number.isNaN(serviceDate.getTime())) {
+    return false;
+  }
+
+  const today = getLocalDate();
+  const weekEnd = new Date(today);
+  weekEnd.setDate(today.getDate() + 6);
+
+  if (periodFilter === 'today') {
+    return serviceDate.getTime() === today.getTime();
+  }
+
+  if (periodFilter === 'week') {
+    return serviceDate >= today && serviceDate <= weekEnd;
+  }
+
+  if (periodFilter === 'overdue') {
+    return serviceDate < today && task.status !== 'done';
+  }
+
+  return true;
+}
+
 function deriveActivityItems(tasks) {
   return [...tasks]
     .sort((firstTask, secondTask) => {
@@ -74,7 +114,7 @@ function deriveActivityItems(tasks) {
         return {
           id: `${task.id}-done`,
           type: 'concluded',
-          text: `${task.title} foi concluida para ${task.customerName || 'cliente nao informado'}.`,
+          text: `${task.title} foi concluída para ${task.customerName || 'cliente não informado'}.`,
           meta: `OS ${String(task.id).slice(-6).toUpperCase()} | encerramento`,
           timestamp: formatTimestamp(task.updatedAt || task.createdAt),
         };
@@ -84,7 +124,7 @@ function deriveActivityItems(tasks) {
         return {
           id: `${task.id}-progress`,
           type: 'started',
-          text: `${task.title} entrou em atendimento com ${task.customerName || 'cliente nao informado'}.`,
+          text: `${task.title} entrou em atendimento com ${task.customerName || 'cliente não informado'}.`,
           meta: `OS ${String(task.id).slice(-6).toUpperCase()} | em campo`,
           timestamp: formatTimestamp(task.updatedAt || task.createdAt),
         };
@@ -94,8 +134,8 @@ function deriveActivityItems(tasks) {
         return {
           id: `${task.id}-reminder`,
           type: 'reminder',
-          text: `${task.title} esta programada para ${formatDateLabel(task.serviceDate)}.`,
-          meta: `${task.customerName || 'Cliente nao informado'} | lembrete de agenda`,
+          text: `${task.title} está programada para ${formatDateLabel(task.serviceDate)}.`,
+          meta: `${task.customerName || 'Cliente não informado'} | lembrete de agenda`,
           timestamp: formatTimestamp(task.serviceDate),
         };
       }
@@ -104,7 +144,7 @@ function deriveActivityItems(tasks) {
         id: `${task.id}-created`,
         type: 'created',
         text: `${task.title} foi criada e aguarda despacho operacional.`,
-        meta: `${task.customerName || 'Cliente nao informado'} | nova OS`,
+        meta: `${task.customerName || 'Cliente não informado'} | nova OS`,
         timestamp: formatTimestamp(task.createdAt),
       };
     });
@@ -123,6 +163,9 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
   const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('all');
+  const [periodFilter, setPeriodFilter] = useState('all');
+  const [technicianFilter, setTechnicianFilter] = useState('all');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [editingTask, setEditingTask] = useState(null);
@@ -137,7 +180,7 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
         const data = await fetchTasks(session.token);
         setTasks(data);
       } catch (error) {
-        setMessage(error.message || 'Erro ao carregar ordens de servico.');
+        setMessage(error.message || 'Erro ao carregar ordens de serviço.');
       } finally {
         setLoading(false);
       }
@@ -148,7 +191,7 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
 
   const addTask = async (payload) => {
     if (!payload.title.trim() || !payload.customerName.trim()) {
-      setMessage('Preencha pelo menos o titulo e o cliente da ordem.');
+      setMessage('Preencha pelo menos o título e o cliente da ordem.');
       return null;
     }
 
@@ -157,7 +200,7 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
     try {
       const createdTask = await createTask(session.token, payload);
       setTasks((currentTasks) => [createdTask, ...currentTasks]);
-      setMessage('Ordem de servico adicionada com sucesso.');
+      setMessage('Ordem de serviço adicionada com sucesso.');
       return createdTask;
     } catch (error) {
       setMessage(error.message);
@@ -193,7 +236,7 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
 
   const cancelEditingTask = () => {
     setEditingTask(null);
-    setMessage('Edicao cancelada.');
+    setMessage('Edição cancelada.');
   };
 
   const changeTaskStatus = async (taskId, nextStatus) => {
@@ -211,7 +254,7 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
       if (editingTask?.id === taskId) {
         setEditingTask(updatedTask);
       }
-      setMessage(`Status atualizado para ${nextStatus === 'done' ? 'concluido' : nextStatus === 'in_progress' ? 'em andamento' : 'pendente'}.`);
+      setMessage(`Status atualizado para ${nextStatus === 'done' ? 'concluído' : nextStatus === 'in_progress' ? 'em andamento' : 'pendente'}.`);
     } catch (error) {
       setMessage(error.message);
     }
@@ -261,8 +304,13 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
     if (editingTask?.status === 'done') {
       setEditingTask(null);
     }
-    setMessage('Ordens concluidas removidas.');
+    setMessage('Ordens concluídas removidas.');
   };
+
+  const technicianOptions = useMemo(() => {
+    return [...new Set(tasks.map((task) => task.assignedTechnician).filter(Boolean))]
+      .sort((firstName, secondName) => firstName.localeCompare(secondName, 'pt-BR'));
+  }, [tasks]);
 
   const filteredTasks = useMemo(() => {
     return tasks
@@ -272,13 +320,19 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
         if (filter === 'completed') return task.status === 'done';
         return true;
       })
+      .filter((task) => (priorityFilter === 'all' ? true : task.priority === priorityFilter))
+      .filter((task) => (technicianFilter === 'all' ? true : task.assignedTechnician === technicianFilter))
+      .filter((task) => matchesPeriod(task, periodFilter))
       .filter((task) => buildSearchableText(task).includes(search.toLowerCase()));
-  }, [filter, search, tasks]);
+  }, [filter, periodFilter, priorityFilter, search, tasks, technicianFilter]);
 
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter((task) => task.status === 'done').length;
   const pendingTasks = tasks.filter((task) => task.status === 'pending').length;
   const inProgressTasks = tasks.filter((task) => task.status === 'in_progress').length;
+  const overdueTasks = tasks.filter((task) => matchesPeriod(task, 'overdue')).length;
+  const scheduledThisWeekTasks = tasks.filter((task) => matchesPeriod(task, 'week')).length;
+  const highPriorityTasks = tasks.filter((task) => task.priority === 'high' && task.status !== 'done').length;
   const activityItems = useMemo(() => deriveActivityItems(tasks), [tasks]);
   const nextOrder = useMemo(() => {
     return [...tasks]
@@ -297,8 +351,8 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
 
   const pageTitles = {
     dashboard: 'Dashboard operacional',
-    'new-order': editingTask ? 'Editar ordem de servico' : 'Nova ordem de servico',
-    orders: 'Fila de servicos',
+    'new-order': editingTask ? 'Editar ordem de serviço' : 'Nova ordem de serviço',
+    orders: 'Fila de serviços',
     activity: 'Atividade recente',
     account: 'Conta e preferencias',
   };
@@ -345,7 +399,7 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
           <span className="brand-subtitle">Field operations</span>
         </div>
 
-        <nav className="sidebar-nav" aria-label="Navegacao principal">
+        <nav className="sidebar-nav" aria-label="Navegação principal">
           {navItems.map((item) => renderNavButton(item))}
         </nav>
 
@@ -356,7 +410,7 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
             </span>
             <div>
               <span className="user-mini__name">{session.user?.username}</span>
-              <span className="user-mini__role">Operacao conectada</span>
+              <span className="user-mini__role">Operação conectada</span>
             </div>
           </div>
 
@@ -364,7 +418,7 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
 
           <button type="button" className="button-ghost" onClick={onLogout}>
             <FiLogOut size={15} />
-            Encerrar sessao
+            Encerrar sessão
           </button>
         </div>
       </aside>
@@ -406,16 +460,16 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
                 <span className="notice-banner__dot" />
                 <span>{message}</span>
               </div>
-              <span className="brand-subtitle">Operacao atualizada</span>
+              <span className="brand-subtitle">Operação atualizada</span>
             </div>
           ) : null}
 
           <section id="section-dashboard" className="page-section">
             <div className="section-header">
               <div>
-                <span className="section-kicker">Visao geral</span>
+                <span className="section-kicker">Visão geral</span>
                 <h2 className="section-title">Dashboard e ritmo operacional</h2>
-                <p className="section-description">KPIs com leitura rapida para o dono da operacao e um resumo direto do que esta puxando o dia.</p>
+                <p className="section-description">KPIs com leitura rápida para o dono da operação e um resumo direto do que está puxando o dia.</p>
               </div>
             </div>
 
@@ -433,19 +487,19 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
                 <div className="section-header">
                   <div>
                     <span className="panel-kicker">Despacho</span>
-                    <h3 className="panel-title">Leitura tatica do quadro</h3>
+                    <h3 className="panel-title">Leitura tática do quadro</h3>
                     <p className="panel-description">Um resumo do momento para decidir o que priorizar, cobrar ou deslocar.</p>
                   </div>
                 </div>
 
                 <div className="spotlight-grid">
                   <div className="spotlight-item">
-                    <span className="spotlight-label">Conclusao</span>
+                    <span className="spotlight-label">Conclusão</span>
                     <span className="spotlight-value">{completionRate}%</span>
                     <span className="spotlight-note">Taxa atual de fechamento da carteira.</span>
                   </div>
                   <div className="spotlight-item">
-                    <span className="spotlight-label">Fila critica</span>
+                    <span className="spotlight-label">Fila crítica</span>
                     <span className="spotlight-value">{pendingTasks}</span>
                     <span className="spotlight-note">Ordens paradas aguardando movimento.</span>
                   </div>
@@ -454,13 +508,28 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
                     <span className="spotlight-value">{inProgressTasks}</span>
                     <span className="spotlight-note">Atendimentos ja em campo neste momento.</span>
                   </div>
+                  <div className="spotlight-item">
+                    <span className="spotlight-label">Atrasadas</span>
+                    <span className="spotlight-value">{overdueTasks}</span>
+                    <span className="spotlight-note">Ordens vencidas que ainda não foram concluídas.</span>
+                  </div>
+                  <div className="spotlight-item">
+                    <span className="spotlight-label">Semana</span>
+                    <span className="spotlight-value">{scheduledThisWeekTasks}</span>
+                    <span className="spotlight-note">Visitas com agenda nos próximos 7 dias.</span>
+                  </div>
+                  <div className="spotlight-item">
+                    <span className="spotlight-label">Alta prioridade</span>
+                    <span className="spotlight-value">{highPriorityTasks}</span>
+                    <span className="spotlight-note">Serviços abertos que exigem atenção rápida.</span>
+                  </div>
                 </div>
               </div>
 
               <div className="panel panel--padded">
                 <div className="section-header">
                   <div>
-                    <span className="panel-kicker">Proxima visita</span>
+                    <span className="panel-kicker">Próxima visita</span>
                     <h3 className="panel-title">Radar de agenda</h3>
                     <p className="panel-description">O que vem primeiro no cronograma e merece contexto pronto no painel.</p>
                   </div>
@@ -471,13 +540,14 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
                     <span className="spotlight-banner__label">OS prioritaria</span>
                     <h4 className="spotlight-banner__title">{nextOrder.title}</h4>
                     <div className="spotlight-banner__meta">
-                      <span>{nextOrder.customerName || 'Cliente nao informado'}</span>
+                      <span>{nextOrder.customerName || 'Cliente não informado'}</span>
                       <span>{formatDateLabel(nextOrder.serviceDate)}</span>
-                      <span>{nextOrder.address || 'Endereco pendente'}</span>
+                      <span>{nextOrder.assignedTechnician || 'Técnico pendente'}</span>
+                      <span>{nextOrder.address || 'Endereço pendente'}</span>
                     </div>
                   </div>
                 ) : (
-                  <div className="note-box__body">Ainda nao ha visitas com data definida para destacar no radar.</div>
+                  <div className="note-box__body">Ainda não há visitas com data definida para destacar no radar.</div>
                 )}
               </div>
             </div>
@@ -501,9 +571,9 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
             <div className="panel panel--padded">
               <div className="section-header">
                 <div>
-                  <span className="section-kicker">Servico</span>
+                  <span className="section-kicker">Serviço</span>
                   <h2 className="section-title">Lista de ordens</h2>
-                  <p className="section-description">Quadro principal com busca, status, checklist e acoes para operar as OS de ponta a ponta.</p>
+                  <p className="section-description">Quadro principal com busca, status, técnico, prioridade, agenda, checklist e ações para operar as OS de ponta a ponta.</p>
                 </div>
               </div>
 
@@ -512,12 +582,55 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
                   type="text"
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Buscar por servico, cliente, endereco, telefone ou checklist..."
+                  placeholder="Buscar por serviço, cliente, endereço, técnico, telefone ou checklist..."
                   className="search-input"
                 />
                 <button type="button" className="button-ghost" onClick={() => setSearch('')}>
                   Limpar busca
                 </button>
+              </div>
+
+              <div className="advanced-filter-grid">
+                <label className="filter-field">
+                  <span>Status</span>
+                  <select value={filter} onChange={(event) => setFilter(event.target.value)} className="select">
+                    <option value="all">Todos</option>
+                    <option value="active">Pendentes</option>
+                    <option value="in_progress">Em andamento</option>
+                    <option value="completed">Concluídas</option>
+                  </select>
+                </label>
+
+                <label className="filter-field">
+                  <span>Prioridade</span>
+                  <select value={priorityFilter} onChange={(event) => setPriorityFilter(event.target.value)} className="select">
+                    <option value="all">Todas</option>
+                    <option value="high">Alta</option>
+                    <option value="medium">Média</option>
+                    <option value="low">Baixa</option>
+                  </select>
+                </label>
+
+                <label className="filter-field">
+                  <span>Período</span>
+                  <select value={periodFilter} onChange={(event) => setPeriodFilter(event.target.value)} className="select">
+                    <option value="all">Qualquer data</option>
+                    <option value="today">Hoje</option>
+                    <option value="week">Próximos 7 dias</option>
+                    <option value="overdue">Atrasadas</option>
+                    <option value="unscheduled">Sem agenda</option>
+                  </select>
+                </label>
+
+                <label className="filter-field">
+                  <span>Técnico</span>
+                  <select value={technicianFilter} onChange={(event) => setTechnicianFilter(event.target.value)} className="select">
+                    <option value="all">Todos</option>
+                    {technicianOptions.map((technician) => (
+                      <option key={technician} value={technician}>{technician}</option>
+                    ))}
+                  </select>
+                </label>
               </div>
             </div>
 
@@ -553,21 +666,21 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
                 <div className="section-header">
                   <div>
                     <span className="section-kicker">Conta</span>
-                    <h2 className="section-title">Preferencias de operacao</h2>
-                    <p className="section-description">Estado da sessao atual e preferencias visuais para o uso diario do produto.</p>
+                    <h2 className="section-title">Preferências de operação</h2>
+                    <p className="section-description">Estado da sessão atual e preferências visuais para o uso diário do produto.</p>
                   </div>
                 </div>
 
                 <div className="spotlight-grid">
                   <div className="spotlight-item">
-                    <span className="spotlight-label">Usuario</span>
+                    <span className="spotlight-label">Usuário</span>
                     <span className="spotlight-value">{session.user?.username}</span>
                     <span className="spotlight-note">Conta autenticada no painel web.</span>
                   </div>
                   <div className="spotlight-item">
                     <span className="spotlight-label">Tema</span>
                     <span className="spotlight-value">{theme === 'dark' ? 'Escuro' : 'Claro'}</span>
-                    <span className="spotlight-note">Alternancia persistida entre acessos.</span>
+                    <span className="spotlight-note">Alternância persistida entre acessos.</span>
                   </div>
                   <div className="spotlight-item">
                     <span className="spotlight-label">API</span>
@@ -580,9 +693,9 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
               <div className="panel panel--padded">
                 <div className="section-header">
                   <div>
-                    <span className="section-kicker">Proximo ciclo</span>
+                    <span className="section-kicker">Próximo ciclo</span>
                     <h2 className="section-title">Leitura de produto</h2>
-                    <p className="section-description">Resumo do que esta pronto agora e do que sustenta os proximos passos de monetizacao e mobile.</p>
+                    <p className="section-description">Resumo do que está pronto agora e do que sustenta os próximos passos de monetização e mobile.</p>
                   </div>
                 </div>
 
@@ -590,19 +703,19 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
                   <li>
                     <div>
                       <span className="auth-point__title">Dashboard com identidade propria</span>
-                      <span className="auth-point__body">A camada visual saiu do look generico e passou a comunicar produto de operacao de campo.</span>
+                      <span className="auth-point__body">A camada visual saiu do look genérico e passou a comunicar produto de operação de campo.</span>
                     </div>
                   </li>
                   <li>
                     <div>
                       <span className="auth-point__title">Tema claro e escuro</span>
-                      <span className="auth-point__body">A alternancia visual agora faz parte do sistema, nao de uma tela isolada.</span>
+                      <span className="auth-point__body">A alternância visual agora faz parte do sistema, não de uma tela isolada.</span>
                     </div>
                   </li>
                   <li>
                     <div>
                       <span className="auth-point__title">Base pronta para continuar</span>
-                      <span className="auth-point__body">Com o shell estabilizado, fica mais seguro seguir para offline avancado, push e comprovacao de execucao.</span>
+                      <span className="auth-point__body">Com filtros por técnico, prioridade e período, a base está pronta para validação comercial e entrevistas com prestadores.</span>
                     </div>
                   </li>
                 </ul>
@@ -612,7 +725,7 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
         </div>
       </main>
 
-      <nav className="mobile-nav" aria-label="Navegacao inferior">
+      <nav className="mobile-nav" aria-label="Navegação inferior">
         {navItems.map((item) => renderNavButton(item, true))}
       </nav>
     </div>

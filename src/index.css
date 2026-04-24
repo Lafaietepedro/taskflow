@@ -1070,6 +1070,27 @@ img {
   align-items: center;
 }
 
+.advanced-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.filter-field {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.filter-field span {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 .orders-table {
   display: grid;
 }
@@ -1555,7 +1576,8 @@ img {
   }
 
   .form-grid,
-  .search-bar {
+  .search-bar,
+  .advanced-filter-grid {
     grid-template-columns: 1fr;
   }
 

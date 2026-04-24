@@ -37,6 +37,7 @@ const taskSchema = new mongoose.Schema({
   customerName: { type: String, trim: true, default: '' },
   customerPhone: { type: String, trim: true, default: '' },
   address: { type: String, trim: true, default: '' },
+  assignedTechnician: { type: String, trim: true, default: '' },
   checklistItems: { type: [checklistItemSchema], default: [] },
   proofPhoto: { type: proofPhotoSchema, default: null },
 }, {

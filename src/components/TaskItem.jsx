@@ -4,12 +4,12 @@ import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 const STATUS_LABELS = {
   pending: 'Pendente',
   in_progress: 'Em andamento',
-  done: 'Concluido',
+  done: 'Concluído',
 };
 
 const PRIORITY_LABELS = {
   low: 'Baixa',
-  medium: 'Media',
+  medium: 'Média',
   high: 'Alta',
 };
 
@@ -24,7 +24,7 @@ function formatServiceDate(serviceDate) {
   const parsedDate = new Date(serviceDate);
   if (Number.isNaN(parsedDate.getTime())) {
     return {
-      date: 'Data invalida',
+      date: 'Data inválida',
       time: 'Revisar OS',
     };
   }
@@ -81,7 +81,7 @@ function TaskItem({ task, technicianName, onStatusChange, onChecklistToggle, onE
   const checklistTotal = checklistItems.length;
   const progressPercentage = checklistTotal > 0 ? Math.round((checklistDoneCount / checklistTotal) * 100) : 0;
   const serviceDate = formatServiceDate(task.serviceDate);
-  const technicianLabel = technicianName || 'Equipe';
+  const technicianLabel = task.assignedTechnician || technicianName || 'Equipe';
   const accent = getAccentFromText(technicianLabel);
   const shortId = `#${String(task.id || '').slice(-6).toUpperCase() || 'OS0000'}`;
 
@@ -95,10 +95,10 @@ function TaskItem({ task, technicianName, onStatusChange, onChecklistToggle, onE
 
         <div className="order-cell order-cell--service">
           <div className="order-service__title">{task.title}</div>
-          <div className="order-service__client">{task.customerName || 'Cliente nao informado'}</div>
+          <div className="order-service__client">{task.customerName || 'Cliente não informado'}</div>
           <div className="order-service__meta">
             <span>{task.customerPhone || 'Telefone pendente'}</span>
-            <span>{task.address || 'Endereco nao informado'}</span>
+            <span>{task.address || 'Endereço não informado'}</span>
           </div>
         </div>
 
@@ -127,7 +127,7 @@ function TaskItem({ task, technicianName, onStatusChange, onChecklistToggle, onE
             </span>
             <div>
               <span className="order-tech__name">{technicianLabel}</span>
-              <span className="order-tech__role">Tecnico responsavel</span>
+              <span className="order-tech__role">Técnico responsável</span>
             </div>
           </div>
         </div>
@@ -164,7 +164,7 @@ function TaskItem({ task, technicianName, onStatusChange, onChecklistToggle, onE
       <div className="order-row__details">
         {task.notes ? (
           <div className="note-box">
-            <div className="mini-panel__title">Observacoes</div>
+            <div className="mini-panel__title">Observações</div>
             <div className="note-box__body">{task.notes}</div>
           </div>
         ) : null}

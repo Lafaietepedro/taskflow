@@ -40,6 +40,7 @@ function serializeTask(taskDocument) {
     customerName: task.customerName || '',
     customerPhone: task.customerPhone || '',
     address: task.address || '',
+    assignedTechnician: task.assignedTechnician || '',
     proofPhoto: serializeProofPhoto(task.proofPhoto),
     checklistItems: Array.isArray(task.checklistItems)
       ? task.checklistItems.map(serializeChecklistItem)

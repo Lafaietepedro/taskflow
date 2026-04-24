@@ -15,6 +15,7 @@ export function createOrderFormValues(task) {
     customerPhone: safeTask.customerPhone || '',
     serviceDate: formatDateForInput(safeTask.serviceDate),
     address: safeTask.address || '',
+    assignedTechnician: safeTask.assignedTechnician || '',
     priority: safeTask.priority || 'medium',
     notes: safeTask.notes || '',
     checklistItems: Array.isArray(safeTask.checklistItems)
@@ -34,6 +35,7 @@ export function buildOrderPayload(form) {
     customerPhone: form.customerPhone.trim(),
     serviceDate: form.serviceDate ? `${form.serviceDate}T12:00:00.000Z` : '',
     address: form.address.trim(),
+    assignedTechnician: form.assignedTechnician.trim(),
     priority: form.priority,
     notes: form.notes.trim(),
     checklistItems: (form.checklistItems || [])
