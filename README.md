@@ -1,31 +1,32 @@
 # TaskFlow Field
 
-## Descricao
+## Descrição
 
-**TaskFlow Field** e uma aplicacao full stack para organizar operacoes de servico em campo.
-A base do projeto agora esta preparada para evoluir de um app web de tarefas para um produto com **dashboard web + app mobile**, compartilhando a mesma API.
+**TaskFlow Field** é uma aplicação full stack para organizar operações de serviço em campo.
+A base do projeto agora está preparada para evoluir de um app web de tarefas para um produto com **dashboard web + app mobile**, compartilhando a mesma API.
 
 Destaques atuais:
-- autenticacao com JWT
+- autenticação com JWT
 - API REST com Node.js, Express e MongoDB
 - rotas versionadas em `/api/v1`
-- frontend React com configuracao por variavel de ambiente
-- modelo de dados pronto para crescer com cliente, endereco, data e checklist
-- conta demo opcional com ordens de exemplo para validacao rapida
+- frontend React com configuração por variável de ambiente
+- modelo de dados pronto para crescer com cliente, endereço, data e checklist
+- trial, planos comerciais e intenção de assinatura para validação de receita
+- conta demo opcional com ordens de exemplo para validação rápida
 
 ## Deploy atual
 
 - Frontend: [https://taskflowofc.vercel.app](https://taskflowofc.vercel.app)
 - Backend: [https://taskflow-dlfs.onrender.com](https://taskflow-dlfs.onrender.com)
 
-## Estrategia de produto
+## Estratégia de produto
 
-A direcao de negocio e detalhada em [docs/product-strategy.md](docs/product-strategy.md).
+A direção de negócio é detalhada em [docs/product-strategy.md](docs/product-strategy.md).
 
 Resumo do nicho escolhido:
-- prestadores de servico autonomos
-- pequenas equipes de manutencao e assistencia tecnica
-- operacoes que dependem de celular e visitas em campo
+- prestadores de serviço autônomos
+- pequenas equipes de manutenção e assistência técnica
+- operações que dependem de celular e visitas em campo
 
 ## Tecnologias
 
@@ -52,12 +53,12 @@ npm install
 npm run dev
 ```
 
-## Variaveis de ambiente
+## Variáveis de ambiente
 
 ### Frontend
 
 ```bash
-VITE_API_URL=http://localhost:5000/api/v1
+VITE_API_URL=http://localhost:5001/api/v1
 VITE_DEMO_ACCOUNT_ENABLED=true
 VITE_DEMO_USERNAME=demo@taskflow.com
 VITE_DEMO_PASSWORD=taskflow123
@@ -66,7 +67,7 @@ VITE_DEMO_PASSWORD=taskflow123
 ### Backend
 
 ```bash
-PORT=5000
+PORT=5001
 MONGODB_URI=mongodb://127.0.0.1:27017/taskflow
 JWT_SECRET=troque-por-um-segredo-forte
 CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,exp://127.0.0.1:8081
@@ -76,8 +77,8 @@ DEMO_PASSWORD=taskflow123
 DEMO_FULL_NAME=Equipe Demo TaskFlow
 ```
 
-## Proximos passos
+## Próximos passos
 
-- enriquecer a ordem de servico com cliente e data no frontend
-- criar app mobile com React Native e Expo usando a mesma API
-- adicionar onboarding e testes de API
+- validar 3 interessados fortes ou pagantes manuais
+- plugar checkout real quando houver sinal comercial
+- preparar build de produção do app mobile quando a venda justificar

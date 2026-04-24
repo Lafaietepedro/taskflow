@@ -47,12 +47,12 @@ function buildTaskPayload(body = {}, { partial = false } = {}) {
   if (rawTitle !== undefined) {
     const title = String(rawTitle).trim();
     if (!title) {
-      throw new Error('Titulo obrigatorio.');
+      throw new Error('Título obrigatório.');
     }
     payload.title = title;
     payload.text = title;
   } else if (!partial) {
-    throw new Error('Titulo obrigatorio.');
+    throw new Error('Título obrigatório.');
   }
 
   if (body.notes !== undefined) {
@@ -61,7 +61,7 @@ function buildTaskPayload(body = {}, { partial = false } = {}) {
 
   if (body.status !== undefined) {
     if (!VALID_STATUSES.has(body.status)) {
-      throw new Error('Status invalido.');
+      throw new Error('Status inválido.');
     }
     payload.status = body.status;
   } else if (body.completed !== undefined) {
@@ -70,7 +70,7 @@ function buildTaskPayload(body = {}, { partial = false } = {}) {
 
   if (body.priority !== undefined) {
     if (!VALID_PRIORITIES.has(body.priority)) {
-      throw new Error('Prioridade invalida.');
+      throw new Error('Prioridade inválida.');
     }
     payload.priority = body.priority;
   }
@@ -122,7 +122,7 @@ router.post('/', auth, async (req, res) => {
     await task.save();
     return res.status(201).json(serializeTask(task));
   } catch (error) {
-    const statusCode = error.message.endsWith('obrigatorio.') || error.message.endsWith('invalida.') || error.message.endsWith('invalido.')
+    const statusCode = error.message.endsWith('obrigatório.') || error.message.endsWith('inválida.') || error.message.endsWith('inválido.')
       ? 400
       : 500;
 
@@ -140,12 +140,12 @@ router.put('/:id', auth, async (req, res) => {
     );
 
     if (!task) {
-      return res.status(404).json({ error: 'Tarefa nao encontrada.' });
+      return res.status(404).json({ error: 'Tarefa não encontrada.' });
     }
 
     return res.json(serializeTask(task));
   } catch (error) {
-    const statusCode = error.message.endsWith('obrigatorio.') || error.message.endsWith('invalida.') || error.message.endsWith('invalido.')
+    const statusCode = error.message.endsWith('obrigatório.') || error.message.endsWith('inválida.') || error.message.endsWith('inválido.')
       ? 400
       : 500;
 
@@ -163,12 +163,12 @@ router.patch('/:id/status', auth, async (req, res) => {
     );
 
     if (!task) {
-      return res.status(404).json({ error: 'Tarefa nao encontrada.' });
+      return res.status(404).json({ error: 'Tarefa não encontrada.' });
     }
 
     return res.json(serializeTask(task));
   } catch (error) {
-    const statusCode = error.message.endsWith('invalida.') || error.message.endsWith('invalido.') ? 400 : 500;
+    const statusCode = error.message.endsWith('inválida.') || error.message.endsWith('inválido.') ? 400 : 500;
     return res.status(statusCode).json({ error: statusCode === 400 ? error.message : 'Erro ao atualizar status.' });
   }
 });
@@ -178,7 +178,7 @@ router.delete('/:id', auth, async (req, res) => {
     const task = await Task.findOneAndDelete({ _id: req.params.id, user: req.userId });
 
     if (!task) {
-      return res.status(404).json({ error: 'Tarefa nao encontrada.' });
+      return res.status(404).json({ error: 'Tarefa não encontrada.' });
     }
 
     return res.json({ message: 'Tarefa removida.' });

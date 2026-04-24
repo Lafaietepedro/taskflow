@@ -65,7 +65,7 @@ function buildDemoTasks(userId) {
       checklistItems: [
         { label: 'Testar cabo do caixa', done: true },
         { label: 'Reiniciar roteador', done: true },
-        { label: 'Orientar cliente sobre proximo chamado', done: true },
+        { label: 'Orientar cliente sobre próximo chamado', done: true },
       ],
     },
   ];
@@ -89,6 +89,10 @@ async function ensureDemoAccount() {
       username: config.username,
       password: passwordHash,
       fullName: config.fullName,
+      plan: 'team',
+      subscriptionStatus: 'trialing',
+      trialStartedAt: new Date(),
+      trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     },
     { new: true, upsert: true, setDefaultsOnInsert: true }
   );

@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   FiActivity,
+  FiCheckCircle,
   FiClipboard,
+  FiCreditCard,
   FiGrid,
   FiLogOut,
   FiMoon,
@@ -16,7 +18,9 @@ import Actions from './Actions';
 import EmptyState from './EmptyState';
 import ActivityFeed from './ActivityFeed';
 import { createTask, deleteTask, fetchTasks, updateTask, updateTaskStatus } from '../services/tasks';
+import { requestCheckoutIntent } from '../services/auth';
 import { buildOrderPayload } from '../utils/orderForm';
+import { PLAN_OPTIONS, getPlanById } from '../config/plans';
 
 function buildSearchableText(task) {
   return [
@@ -60,6 +64,15 @@ function formatTimestamp(dateValue) {
     dateStyle: 'short',
     timeStyle: 'short',
   }).format(parsedDate);
+}
+
+function calculateDaysRemaining(dateValue) {
+  if (!dateValue) {
+    return 0;
+  }
+
+  const remainingMs = new Date(dateValue).getTime() - Date.now();
+  return Math.max(0, Math.ceil(remainingMs / (24 * 60 * 60 * 1000)));
 }
 
 function getLocalDate(value = new Date()) {
@@ -159,7 +172,7 @@ function ThemeSwitch({ theme, onToggleTheme }) {
   );
 }
 
-function TodoApp({ session, onLogout, theme, onToggleTheme }) {
+function TodoApp({ session, onLogout, onSessionUpdate, theme, onToggleTheme }) {
   const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
@@ -170,6 +183,10 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
   const [loading, setLoading] = useState(true);
   const [editingTask, setEditingTask] = useState(null);
   const [activeSection, setActiveSection] = useState('dashboard');
+  const [checkoutPlan, setCheckoutPlan] = useState(session.user?.plan || 'team');
+  const [checkoutContact, setCheckoutContact] = useState('');
+  const [checkoutNotes, setCheckoutNotes] = useState('');
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   useEffect(() => {
     async function loadTasks() {
@@ -307,6 +324,28 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
     setMessage('Ordens concluídas removidas.');
   };
 
+  const handleCheckoutIntent = async (event) => {
+    event.preventDefault();
+    setCheckoutLoading(true);
+    setMessage('');
+
+    try {
+      const response = await requestCheckoutIntent(session.token, {
+        requestedPlan: checkoutPlan,
+        contactMethod: 'whatsapp',
+        contactValue: checkoutContact,
+        notes: checkoutNotes,
+      });
+
+      onSessionUpdate({ user: response.user });
+      setMessage(response.message);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
   const technicianOptions = useMemo(() => {
     return [...new Set(tasks.map((task) => task.assignedTechnician).filter(Boolean))]
       .sort((firstName, secondName) => firstName.localeCompare(secondName, 'pt-BR'));
@@ -341,6 +380,24 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
   }, [tasks]);
 
   const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const currentUser = session.user || {};
+  const currentPlan = getPlanById(currentUser.plan);
+  const trialDaysRemaining = currentUser.trialDaysRemaining ?? calculateDaysRemaining(currentUser.trialEndsAt);
+  const hasChecklist = tasks.some((task) => task.checklistItems?.length > 0);
+  const hasTechnician = tasks.some((task) => task.assignedTechnician);
+  const hasScheduledOrder = tasks.some((task) => task.serviceDate);
+  const activationGoals = [
+    { label: 'Primeira OS criada', done: totalTasks > 0 },
+    { label: 'Checklist configurado', done: hasChecklist },
+    { label: 'Técnico responsável definido', done: hasTechnician },
+    { label: 'Agenda com data real', done: hasScheduledOrder },
+  ];
+  const activationScore = Math.round((activationGoals.filter((goal) => goal.done).length / activationGoals.length) * 100);
+  const checkoutStatusLabel = currentUser.subscriptionStatus === 'checkout_requested'
+    ? 'Assinatura solicitada'
+    : currentUser.subscriptionStatus === 'active'
+      ? 'Assinatura ativa'
+      : 'Trial ativo';
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: FiGrid, badge: String(totalTasks || 0) },
     { id: 'new-order', label: 'Nova OS', icon: FiPlusSquare },
@@ -687,38 +744,108 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
                     <span className="spotlight-value">Web + mobile</span>
                     <span className="spotlight-note">Mesmo backend operando os dois clientes.</span>
                   </div>
+                  <div className="spotlight-item">
+                    <span className="spotlight-label">Plano</span>
+                    <span className="spotlight-value">{currentPlan.name}</span>
+                    <span className="spotlight-note">{checkoutStatusLabel} com {trialDaysRemaining} dia(s) restantes.</span>
+                  </div>
                 </div>
               </div>
 
               <div className="panel panel--padded">
                 <div className="section-header">
                   <div>
-                    <span className="section-kicker">Próximo ciclo</span>
-                    <h2 className="section-title">Leitura de produto</h2>
-                    <p className="section-description">Resumo do que está pronto agora e do que sustenta os próximos passos de monetização e mobile.</p>
+                    <span className="section-kicker">Receita</span>
+                    <h2 className="section-title">Trial e assinatura</h2>
+                    <p className="section-description">Planos comerciais para demonstrar valor, registrar intenção de compra e preparar o checkout real.</p>
                   </div>
                 </div>
 
-                <ul className="auth-points" style={{ marginTop: 0 }}>
-                  <li>
-                    <div>
-                      <span className="auth-point__title">Dashboard com identidade própria</span>
-                      <span className="auth-point__body">A camada visual saiu do look genérico e passou a comunicar produto de operação de campo.</span>
+                <form className="checkout-panel" onSubmit={handleCheckoutIntent}>
+                  <div className="pricing-grid pricing-grid--account">
+                    {PLAN_OPTIONS.map((plan) => (
+                      <button
+                        key={plan.id}
+                        type="button"
+                        className={`plan-card plan-card--button ${plan.featured ? 'is-featured' : ''} ${checkoutPlan === plan.id ? 'is-selected' : ''}`}
+                        onClick={() => setCheckoutPlan(plan.id)}
+                      >
+                        <span className="plan-card__eyebrow">{plan.limit}</span>
+                        <span className="plan-card__name">{plan.name}</span>
+                        <span className="plan-card__price">{plan.price}</span>
+                        <span className="plan-card__description">{plan.description}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="form-grid">
+                    <label className="form-field">
+                      <span className="field-label">WhatsApp para checkout</span>
+                      <input
+                        type="tel"
+                        value={checkoutContact}
+                        onChange={(event) => setCheckoutContact(event.target.value)}
+                        placeholder="(11) 99999-9999"
+                        className="input"
+                      />
+                    </label>
+                    <label className="form-field">
+                      <span className="field-label">Observação comercial</span>
+                      <input
+                        type="text"
+                        value={checkoutNotes}
+                        onChange={(event) => setCheckoutNotes(event.target.value)}
+                        placeholder="Ex.: validar com equipe de 3 técnicos"
+                        className="input"
+                      />
+                    </label>
+                  </div>
+
+                  <button type="submit" className="button-primary" disabled={checkoutLoading}>
+                    <FiCreditCard size={15} />
+                    {checkoutLoading ? 'Registrando...' : 'Registrar intenção de assinatura'}
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <div className="panel panel--padded">
+              <div className="section-header">
+                <div>
+                  <span className="section-kicker">Métricas</span>
+                  <h2 className="section-title">Ativação e retenção</h2>
+                  <p className="section-description">Indicadores práticos para saber se uma equipe entendeu valor antes de pedir pagamento.</p>
+                </div>
+              </div>
+
+              <div className="activation-grid">
+                <div className="activation-score">
+                  <span className="spotlight-label">Ativação</span>
+                  <span className="spotlight-value">{activationScore}%</span>
+                  <span className="spotlight-note">Meta: primeira ordem útil cadastrada em até 10 minutos.</span>
+                </div>
+                <div className="activation-list">
+                  {activationGoals.map((goal) => (
+                    <div key={goal.label} className={`activation-item ${goal.done ? 'is-done' : ''}`}>
+                      <FiCheckCircle size={16} />
+                      <span>{goal.label}</span>
                     </div>
-                  </li>
-                  <li>
-                    <div>
-                      <span className="auth-point__title">Tema claro e escuro</span>
-                      <span className="auth-point__body">A alternância visual agora faz parte do sistema, não de uma tela isolada.</span>
-                    </div>
-                  </li>
-                  <li>
-                    <div>
-                      <span className="auth-point__title">Base pronta para continuar</span>
-                      <span className="auth-point__body">Com filtros por técnico, prioridade e período, a base está pronta para validação comercial e entrevistas com prestadores.</span>
-                    </div>
-                  </li>
-                </ul>
+                  ))}
+                </div>
+                <div className="metric-stack">
+                  <div>
+                    <span className="spotlight-label">Ordens por usuário</span>
+                    <span className="spotlight-value">{totalTasks}</span>
+                  </div>
+                  <div>
+                    <span className="spotlight-label">Conclusões</span>
+                    <span className="spotlight-value">{completedTasks}</span>
+                  </div>
+                  <div>
+                    <span className="spotlight-label">Retorno esperado</span>
+                    <span className="spotlight-value">{scheduledThisWeekTasks}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </section>

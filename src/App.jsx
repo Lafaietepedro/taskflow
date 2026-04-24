@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FiArrowRight, FiLock, FiMoon, FiPlayCircle, FiSun, FiUser } from 'react-icons/fi';
+import { FiArrowRight, FiCheck, FiLock, FiMoon, FiPlayCircle, FiSun, FiUser } from 'react-icons/fi';
 import TodoApp from './components/TodoApp';
-import { login, register } from './services/auth';
+import { fetchCurrentUser, login, register } from './services/auth';
 import { DEMO_CREDENTIALS } from './config/env';
+import { PLAN_OPTIONS, getPlanById } from './config/plans';
 
 const SESSION_KEY = 'taskflow.session';
 const THEME_KEY = 'taskflow.theme';
@@ -55,14 +56,16 @@ function Auth({ onAuth, theme, onToggleTheme }) {
   const [mode, setMode] = useState('login');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedPlan, setSelectedPlan] = useState('team');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  const selectedPlanOption = getPlanById(selectedPlan);
   const authTitle = mode === 'login' ? 'Entrar na operação' : 'Criar conta de equipe';
   const authDescription = mode === 'login'
     ? 'Acesse o painel industrial do TaskFlow Field para organizar ordens, equipe e o fluxo de campo.'
-    : 'Cadastre a conta inicial da operação para testar o produto, validar o fluxo e preparar a base de receita.';
+    : `Comece com 7 dias de teste no plano ${selectedPlanOption.name} e valide o fluxo com uma equipe de campo.`;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -87,7 +90,7 @@ function Auth({ onAuth, theme, onToggleTheme }) {
         persistSession(session);
         onAuth(session);
       } else {
-        await register({ username, password });
+        await register({ username, password, plan: selectedPlan });
         setSuccess('Cadastro realizado. Faça login para continuar.');
         setMode('login');
         setPassword('');
@@ -186,6 +189,26 @@ function Auth({ onAuth, theme, onToggleTheme }) {
               </div>
             </li>
           </ul>
+
+          <div className="pricing-grid pricing-grid--hero" aria-label="Planos comerciais">
+            {PLAN_OPTIONS.map((plan) => (
+              <button
+                key={plan.id}
+                type="button"
+                className={`plan-card plan-card--button ${plan.featured ? 'is-featured' : ''} ${selectedPlan === plan.id ? 'is-selected' : ''}`}
+                onClick={() => {
+                  setSelectedPlan(plan.id);
+                  setMode('register');
+                  setError('');
+                  setSuccess('');
+                }}
+              >
+                <span className="plan-card__eyebrow">{plan.limit}</span>
+                <span className="plan-card__name">{plan.name}</span>
+                <span className="plan-card__price">{plan.price}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="auth-hero__footer">
@@ -207,6 +230,29 @@ function Auth({ onAuth, theme, onToggleTheme }) {
             <h2 className="auth-form__title">{authTitle}</h2>
             <p className="auth-form__description">{authDescription}</p>
           </div>
+
+          {mode === 'register' ? (
+            <div className="plan-selector">
+              <span className="field-label">Plano inicial</span>
+              <div className="plan-selector__grid">
+                {PLAN_OPTIONS.map((plan) => (
+                  <button
+                    key={plan.id}
+                    type="button"
+                    className={`plan-selector__button ${selectedPlan === plan.id ? 'is-selected' : ''}`}
+                    onClick={() => setSelectedPlan(plan.id)}
+                  >
+                    <span>{plan.name}</span>
+                    <strong>{plan.price}</strong>
+                  </button>
+                ))}
+              </div>
+              <span className="helper-text">
+                <FiCheck size={13} />
+                Teste gratuito por 7 dias antes da assinatura.
+              </span>
+            </div>
+          ) : null}
 
           <div className="form-field">
             <label htmlFor="auth-username">Usuário</label>
@@ -307,6 +353,20 @@ function App() {
     const storedSession = readSession();
     if (storedSession?.token) {
       setSession(storedSession);
+
+      fetchCurrentUser(storedSession.token)
+        .then((response) => {
+          const refreshedSession = {
+            ...storedSession,
+            user: response.user,
+          };
+
+          persistSession(refreshedSession);
+          setSession(refreshedSession);
+        })
+        .catch(() => {
+          setSession(storedSession);
+        });
     }
   }, []);
 
@@ -318,6 +378,22 @@ function App() {
   const handleLogout = () => {
     clearSession();
     setSession(null);
+  };
+
+  const handleSessionUpdate = (partialSession) => {
+    setSession((currentSession) => {
+      const nextSession = {
+        ...currentSession,
+        ...partialSession,
+        user: {
+          ...currentSession?.user,
+          ...partialSession.user,
+        },
+      };
+
+      persistSession(nextSession);
+      return nextSession;
+    });
   };
 
   const toggleTheme = () => {
@@ -333,6 +409,7 @@ function App() {
       <TodoApp
         session={session}
         onLogout={handleLogout}
+        onSessionUpdate={handleSessionUpdate}
         theme={theme}
         onToggleTheme={toggleTheme}
       />

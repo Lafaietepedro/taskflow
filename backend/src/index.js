@@ -23,7 +23,7 @@ app.use(cors({
       return callback(null, true);
     }
 
-    return callback(new Error('Origem nao permitida pelo CORS.'));
+    return callback(new Error('Origem não permitida pelo CORS.'));
   },
 }));
 app.use(express.json({ limit: '6mb' }));
@@ -48,7 +48,7 @@ app.use('/tasks', taskRoutes);
 app.use('/api/v1', apiV1Routes);
 
 app.use((error, req, res, next) => {
-  if (error.message === 'Origem nao permitida pelo CORS.') {
+  if (error.message === 'Origem não permitida pelo CORS.') {
     return res.status(403).json({ error: error.message });
   }
 
@@ -61,12 +61,12 @@ const server = app.listen(PORT, HOST, () => {
 
 server.on('error', (error) => {
   if (error.code === 'EADDRINUSE') {
-    console.error(`A porta ${PORT} ja esta em uso. Encerre o outro processo ou altere PORT no .env.`);
+    console.error(`A porta ${PORT} já está em uso. Encerre o outro processo ou altere PORT no .env.`);
     process.exit(1);
   }
 
   if (error.code === 'EPERM') {
-    console.error(`Sem permissao para escutar em ${HOST}:${PORT}. Tente HOST=127.0.0.1 no backend/.env.`);
+    console.error(`Sem permissão para escutar em ${HOST}:${PORT}. Tente HOST=127.0.0.1 no backend/.env.`);
     process.exit(1);
   }
 

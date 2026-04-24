@@ -48,7 +48,7 @@ taskSchema.pre('validate', function syncLegacyFields(next) {
   const normalizedTitle = (this.title || this.text || '').trim();
 
   if (!normalizedTitle) {
-    this.invalidate('title', 'Titulo obrigatorio.');
+    this.invalidate('title', 'Título obrigatório.');
     return next();
   }
 

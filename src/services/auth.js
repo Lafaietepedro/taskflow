@@ -13,3 +13,15 @@ export function login(payload) {
     body: payload,
   });
 }
+
+export function fetchCurrentUser(token) {
+  return apiFetch('/auth/me', { token });
+}
+
+export function requestCheckoutIntent(token, payload) {
+  return apiFetch('/auth/checkout-intent', {
+    token,
+    method: 'POST',
+    body: payload,
+  });
+}
