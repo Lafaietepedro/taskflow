@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "TaskFlow Field",
+    "slug": "taskflow-field-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#111827"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.lafaiete.taskflowfield"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#111827"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.lafaiete.taskflowfield"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "extra": {
+      "apiUrl": "http://localhost:5001/api/v1",
+      "demoAccountEnabled": "true",
+      "demoUsername": "demo@taskflow.com",
+      "demoPassword": "taskflow123"
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-notifications",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permita selecionar uma foto como comprovante da ordem de servico.",
+          "cameraPermission": "Permita usar a camera para anexar comprovantes de execucao.",
+          "microphonePermission": false
+        }
+      ]
+    ]
+  }
+}

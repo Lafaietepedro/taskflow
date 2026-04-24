@@ -2,16 +2,24 @@ import React from 'react';
 
 function Actions({ completedTasks, totalTasks, onClearCompleted }) {
   return (
-    <div className="flex justify-between items-center pt-4 border-t border-gray-700">
-      <div className="text-sm text-gray-400">
-        <span>{completedTasks}</span> de <span>{totalTasks}</span> concluídas
+    <div className="panel panel--padded">
+      <div className="section-header">
+        <div>
+          <span className="panel-kicker">Fechamento</span>
+          <h3 className="panel-title">Arquivamento e faturamento</h3>
+          <p className="panel-description">
+            {completedTasks} de {totalTasks} ordens ja estao prontas para sair do quadro operacional.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onClearCompleted}
+          disabled={completedTasks === 0}
+          className="button-ghost"
+        >
+          Limpar concluidas
+        </button>
       </div>
-      <button
-        onClick={onClearCompleted}
-        className="text-sm text-violet-500 hover:text-violet-400 font-medium transition-colors"
-      >
-        Limpar concluídas
-      </button>
     </div>
   );
 }

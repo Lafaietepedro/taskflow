@@ -1,42 +1,67 @@
 import React from 'react';
 
-function TaskStats({ totalTasks, filter, setFilter }) {
+const FILTER_OPTIONS = [
+  { key: 'all', label: 'Todas' },
+  { key: 'active', label: 'Pendentes' },
+  { key: 'in_progress', label: 'Em andamento' },
+  { key: 'completed', label: 'Concluidas' },
+];
+
+function TaskStats({ totalTasks, pendingTasks, inProgressTasks, completedTasks, filter, setFilter }) {
+  const cards = [
+    {
+      key: 'total',
+      label: 'Total',
+      value: totalTasks,
+      note: 'Carteira completa de OS cadastradas',
+      tone: 'blue',
+    },
+    {
+      key: 'pending',
+      label: 'Pendentes',
+      value: pendingTasks,
+      note: 'Aguardando despacho ou confirmacao',
+      tone: 'amber',
+    },
+    {
+      key: 'progress',
+      label: 'Em rota',
+      value: inProgressTasks,
+      note: 'Ordens em andamento no campo',
+      tone: 'orange',
+    },
+    {
+      key: 'done',
+      label: 'Concluidas',
+      value: completedTasks,
+      note: 'Prontas para faturar ou arquivar',
+      tone: 'green',
+    },
+  ];
+
   return (
-    <div className="flex justify-between items-center mb-4 px-2">
-      <div className="text-sm text-gray-400">
-        {/* <span className="font-medium">{totalTasks}</span> tarefas */}
+    <div className="page-section">
+      <div className="stats-grid">
+        {cards.map((card) => (
+          <article key={card.key} className={`stat-card stat-card--${card.tone}`}>
+            <span className="stat-card__label">{card.label}</span>
+            <span className="stat-card__value">{card.value}</span>
+            <span className="stat-card__sub">{card.note}</span>
+          </article>
+        ))}
       </div>
-      <div className="flex gap-2">
-        <button
-          onClick={() => setFilter('all')}
-          className={`text-sm px-3 py-1 rounded-full transition-colors ${
-            filter === 'all'
-              ? 'bg-violet-600 text-white'
-              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-          }`}
-        >
-          Todas
-        </button>
-        <button
-          onClick={() => setFilter('active')}
-          className={`text-sm px-3 py-1 rounded-full transition-colors ${
-            filter === 'active'
-              ? 'bg-violet-600 text-white'
-              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-          }`}
-        >
-          Ativas
-        </button>
-        <button
-          onClick={() => setFilter('completed')}
-          className={`text-sm px-3 py-1 rounded-full transition-colors ${
-            filter === 'completed'
-              ? 'bg-violet-600 text-white'
-              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-          }`}
-        >
-          Concluídas
-        </button>
+
+      <div className="filter-chip-group" aria-label="Filtros de ordens">
+        {FILTER_OPTIONS.map((option) => (
+          <button
+            key={option.key}
+            type="button"
+            onClick={() => setFilter(option.key)}
+            className={`filter-chip ${filter === option.key ? 'is-active' : ''}`}
+          >
+            {option.label}
+          </button>
+        ))}
       </div>
     </div>
   );

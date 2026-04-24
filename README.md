@@ -1,68 +1,83 @@
-# TaskFlow
+# TaskFlow Field
 
-## Descrição
+## Descricao
 
-**TaskFlow** é uma aplicação web fullstack para gerenciamento de tarefas.
-O sistema permite que usuários criem, visualizem, filtrem, atualizem e removam tarefas de forma segura e intuitiva, com autenticação real baseada em JWT e persistência de dados em banco de dados na nuvem (MongoDB Atlas).
+**TaskFlow Field** e uma aplicacao full stack para organizar operacoes de servico em campo.
+A base do projeto agora esta preparada para evoluir de um app web de tarefas para um produto com **dashboard web + app mobile**, compartilhando a mesma API.
 
-Destaques do projeto:
-- **Design moderno e responsivo**, com gradientes animados, efeito glassmorphism e experiência de usuário fluida.
-- **Autenticação e cadastro de usuários**, protegendo as tarefas de cada usuário.
-- **Integração real entre frontend e backend**, utilizando API RESTful desenvolvida em Node.js/Express.
-- **Feedback visual aprimorado**, com loaders, mensagens de sucesso/erro e animações suaves.
-- **Filtros dinâmicos** (todas, ativas, concluídas) e busca por texto para facilitar a organização.
-- **Deploy completo**: tanto o frontend quanto o backend estão publicados e prontos para uso.
+Destaques atuais:
+- autenticacao com JWT
+- API REST com Node.js, Express e MongoDB
+- rotas versionadas em `/api/v1`
+- frontend React com configuracao por variavel de ambiente
+- modelo de dados pronto para crescer com cliente, endereco, data e checklist
+- conta demo opcional com ordens de exemplo para validacao rapida
 
-## 🚀 Deploy
+## Deploy atual
 
-- **Frontend:** [https://taskflowofc.vercel.app](https://taskflowofc.vercel.app)
-- **Backend:** [https://taskflow-dlfs.onrender.com](https://taskflow-dlfs.onrender.com)
+- Frontend: [https://taskflowofc.vercel.app](https://taskflowofc.vercel.app)
+- Backend: [https://taskflow-dlfs.onrender.com](https://taskflow-dlfs.onrender.com)
 
-## ✨ Funcionalidades
+## Estrategia de produto
 
-- Cadastro e login de usuário (JWT)
-- CRUD de tarefas por usuário autenticado
-- Busca, filtro e limpeza de tarefas concluídas
-- Feedback visual, loaders e animações
-- Design moderno e responsivo (Tailwind CSS)
-- API RESTful com Node.js, Express e MongoDB Atlas
+A direcao de negocio e detalhada em [docs/product-strategy.md](docs/product-strategy.md).
 
-## 🛠️ Tecnologias
+Resumo do nicho escolhido:
+- prestadores de servico autonomos
+- pequenas equipes de manutencao e assistencia tecnica
+- operacoes que dependem de celular e visitas em campo
 
-- **Frontend:** React, Vite, Tailwind CSS, React Icons
-- **Backend:** Node.js, Express, MongoDB Atlas, JWT, bcryptjs
-- **Deploy:** Vercel (frontend), Render (backend)
+## Tecnologias
 
-## ⚙️ Como rodar localmente
+- Frontend web: React, Vite, Tailwind CSS, React Icons
+- Backend: Node.js, Express, MongoDB Atlas, JWT, bcryptjs, Mongoose
+- Deploy: Vercel e Render
+
+## Como rodar localmente
 
 ### Backend
 
 ```bash
 cd backend
+cp .env.example .env
 npm install
-# Crie o arquivo .env com suas variáveis (veja .env.example)
 npm run dev
 ```
 
 ### Frontend
 
 ```bash
+cp .env.example .env
 npm install
 npm run dev
 ```
-Acesse [http://localhost:5173](http://localhost:5173)
 
-## 💡 Diferenciais
+## Variaveis de ambiente
 
-- Visual moderno com gradiente animado e glassmorphism
-- Autenticação real com JWT
-- Integração fullstack (React + Node + MongoDB)
-- Código limpo, componentizado e fácil de evoluir
-- Pronto para portfólio e entrevistas
+### Frontend
 
-## 👤 Contato
+```bash
+VITE_API_URL=http://localhost:5000/api/v1
+VITE_DEMO_ACCOUNT_ENABLED=true
+VITE_DEMO_USERNAME=demo@taskflow.com
+VITE_DEMO_PASSWORD=taskflow123
+```
 
-- [LinkedIn](https://www.linkedin.com/in/lafaiete-almeida-dev)
-- [GitHub](https://github.com/Lafaietepedro)
+### Backend
 
----
+```bash
+PORT=5000
+MONGODB_URI=mongodb://127.0.0.1:27017/taskflow
+JWT_SECRET=troque-por-um-segredo-forte
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,exp://127.0.0.1:8081
+DEMO_ACCOUNT_ENABLED=true
+DEMO_USERNAME=demo@taskflow.com
+DEMO_PASSWORD=taskflow123
+DEMO_FULL_NAME=Equipe Demo TaskFlow
+```
+
+## Proximos passos
+
+- enriquecer a ordem de servico com cliente e data no frontend
+- criar app mobile com React Native e Expo usando a mesma API
+- adicionar onboarding e testes de API
