@@ -96,6 +96,11 @@ function OrderDetailsScreen({
             <Text style={styles.cardLabel}>TELEFONE</Text>
             <Text style={styles.cardValue}>{order.customerPhone || 'Não informado'}</Text>
           </View>
+
+          <View style={styles.infoCard}>
+            <Text style={styles.cardLabel}>TÉCNICO</Text>
+            <Text style={styles.cardValue}>{order.assignedTechnician || 'Não definido'}</Text>
+          </View>
         </View>
 
         <View style={styles.card}>

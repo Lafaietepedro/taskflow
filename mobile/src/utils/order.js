@@ -34,6 +34,7 @@ export function buildSearchText(order) {
     order.customerName,
     order.customerPhone,
     order.address,
+    order.assignedTechnician,
     order.notes,
     ...(order.checklistItems || []).map((item) => item.label),
   ]
@@ -49,6 +50,7 @@ export function buildTaskPayload(order) {
     customerPhone: String(order.customerPhone || '').trim(),
     serviceDate: order.serviceDate ? `${String(order.serviceDate).slice(0, 10)}T12:00:00.000Z` : '',
     address: String(order.address || '').trim(),
+    assignedTechnician: String(order.assignedTechnician || '').trim(),
     priority: order.priority || 'medium',
     notes: String(order.notes || '').trim(),
     checklistItems: (order.checklistItems || []).map((item) => ({

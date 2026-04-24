@@ -8,7 +8,8 @@ Base mobile do produto em Expo consumindo a mesma API do projeto web.
 - sessão persistida com `expo-secure-store`
 - listagem de ordens usando a mesma API do painel web
 - busca por cliente, endereço, checklist e texto da ordem
-- filtros por status
+- filtros por status, prioridade, período e técnico responsável
+- resumo de agenda no topo com hoje, atrasadas, semana e alta prioridade
 - navegação entre lista, detalhe da ordem e perfil
 - atualização de status no celular
 - checklist interativo no detalhe da visita

@@ -31,6 +31,7 @@ function TechnicianAvatar({ name }) {
 
 function OrderCard({ order, onChangeStatus, onOpen }) {
   const priority = priorityMeta[order.priority] || priorityMeta.medium;
+  const technicianLabel = order.assignedTechnician || 'Técnico pendente';
 
   return (
     <View style={styles.card}>
@@ -59,6 +60,11 @@ function OrderCard({ order, onChangeStatus, onOpen }) {
       <Text style={styles.address} numberOfLines={2}>
         {order.address || 'Endereço não informado'}
       </Text>
+
+      <View style={styles.technicianPill}>
+        <Text style={styles.technicianLabel}>TÉCNICO</Text>
+        <Text style={styles.technicianName}>{technicianLabel}</Text>
+      </View>
 
       <View style={styles.footer}>
         <StatusBadge status={order.status} />
@@ -176,6 +182,28 @@ const styles = StyleSheet.create({
     fontFamily: typography.body,
     fontSize: 13,
     lineHeight: 19,
+  },
+  technicianPill: {
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.bgDeep,
+    paddingHorizontal: 11,
+    paddingVertical: 9,
+    gap: 3,
+  },
+  technicianLabel: {
+    color: colors.muted,
+    fontFamily: typography.mono,
+    fontSize: 9,
+    letterSpacing: 1,
+  },
+  technicianName: {
+    color: colors.text,
+    fontFamily: typography.body,
+    fontSize: 13,
+    fontWeight: '800',
+    flexShrink: 1,
   },
   footer: {
     flexDirection: 'row',

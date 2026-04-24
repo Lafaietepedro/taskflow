@@ -27,6 +27,45 @@ const STAT_CARDS = [
   { key: 'done', label: 'Feitas', tone: colors.success },
 ];
 
+function getLocalDate(value = new Date()) {
+  const date = new Date(value);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+function matchesPeriod(order, periodFilter) {
+  if (periodFilter === 'all') {
+    return true;
+  }
+
+  if (!order.serviceDate) {
+    return periodFilter === 'unscheduled';
+  }
+
+  const serviceDate = getLocalDate(order.serviceDate);
+  if (Number.isNaN(serviceDate.getTime())) {
+    return false;
+  }
+
+  const today = getLocalDate();
+  const weekEnd = new Date(today);
+  weekEnd.setDate(today.getDate() + 6);
+
+  if (periodFilter === 'today') {
+    return serviceDate.getTime() === today.getTime();
+  }
+
+  if (periodFilter === 'week') {
+    return serviceDate >= today && serviceDate <= weekEnd;
+  }
+
+  if (periodFilter === 'overdue') {
+    return serviceDate < today && order.status !== 'done';
+  }
+
+  return true;
+}
+
 function OrdersScreen({
   session,
   orders,
@@ -41,18 +80,36 @@ function OrdersScreen({
 }) {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
+  const [priorityFilter, setPriorityFilter] = useState('all');
+  const [periodFilter, setPeriodFilter] = useState('all');
+  const [technicianFilter, setTechnicianFilter] = useState('all');
 
   const filteredOrders = useMemo(() => {
     return orders
       .filter((order) => (filter === 'all' ? true : order.status === filter))
+      .filter((order) => (priorityFilter === 'all' ? true : order.priority === priorityFilter))
+      .filter((order) => (technicianFilter === 'all' ? true : order.assignedTechnician === technicianFilter))
+      .filter((order) => matchesPeriod(order, periodFilter))
       .filter((order) => buildSearchText(order).includes(search.toLowerCase()));
-  }, [filter, orders, search]);
+  }, [filter, orders, periodFilter, priorityFilter, search, technicianFilter]);
 
   const metrics = useMemo(() => ({
     total: orders.length,
     pending: orders.filter((order) => order.status === 'pending').length,
     inProgress: orders.filter((order) => order.status === 'in_progress').length,
     done: orders.filter((order) => order.status === 'done').length,
+  }), [orders]);
+
+  const technicianOptions = useMemo(() => {
+    return [...new Set(orders.map((order) => order.assignedTechnician).filter(Boolean))]
+      .sort((firstName, secondName) => firstName.localeCompare(secondName, 'pt-BR'));
+  }, [orders]);
+
+  const fieldAgenda = useMemo(() => ({
+    today: orders.filter((order) => matchesPeriod(order, 'today')).length,
+    overdue: orders.filter((order) => matchesPeriod(order, 'overdue')).length,
+    week: orders.filter((order) => matchesPeriod(order, 'week')).length,
+    high: orders.filter((order) => order.priority === 'high' && order.status !== 'done').length,
   }), [orders]);
 
   const reminderText = notificationStatus?.permission === 'unavailable'
@@ -136,6 +193,25 @@ function OrdersScreen({
           ))}
         </View>
 
+        <View style={styles.agendaStrip}>
+          <View style={styles.agendaItem}>
+            <Text style={styles.agendaLabel}>Hoje</Text>
+            <Text style={styles.agendaValue}>{fieldAgenda.today}</Text>
+          </View>
+          <View style={styles.agendaItem}>
+            <Text style={styles.agendaLabel}>Atrasadas</Text>
+            <Text style={styles.agendaValue}>{fieldAgenda.overdue}</Text>
+          </View>
+          <View style={styles.agendaItem}>
+            <Text style={styles.agendaLabel}>Semana</Text>
+            <Text style={styles.agendaValue}>{fieldAgenda.week}</Text>
+          </View>
+          <View style={styles.agendaItem}>
+            <Text style={styles.agendaLabel}>Alta</Text>
+            <Text style={styles.agendaValue}>{fieldAgenda.high}</Text>
+          </View>
+        </View>
+
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
           {FILTERS.map((filterOption) => (
             <Pressable
@@ -149,6 +225,72 @@ function OrdersScreen({
             </Pressable>
           ))}
         </ScrollView>
+
+        <View style={styles.filterPanel}>
+          <View style={styles.filterField}>
+            <Text style={styles.filterLabel}>Prioridade</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.optionRow}>
+              {[
+                ['all', 'Todas'],
+                ['high', 'Alta'],
+                ['medium', 'Média'],
+                ['low', 'Baixa'],
+              ].map(([key, label]) => (
+                <Pressable
+                  key={key}
+                  onPress={() => setPriorityFilter(key)}
+                  style={[styles.optionChip, priorityFilter === key && styles.optionChipActive]}
+                >
+                  <Text style={[styles.optionChipText, priorityFilter === key && styles.optionChipTextActive]}>{label}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
+
+          <View style={styles.filterField}>
+            <Text style={styles.filterLabel}>Período</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.optionRow}>
+              {[
+                ['all', 'Tudo'],
+                ['today', 'Hoje'],
+                ['week', '7 dias'],
+                ['overdue', 'Atrasadas'],
+                ['unscheduled', 'Sem data'],
+              ].map(([key, label]) => (
+                <Pressable
+                  key={key}
+                  onPress={() => setPeriodFilter(key)}
+                  style={[styles.optionChip, periodFilter === key && styles.optionChipActive]}
+                >
+                  <Text style={[styles.optionChipText, periodFilter === key && styles.optionChipTextActive]}>{label}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
+
+          {technicianOptions.length > 0 ? (
+            <View style={styles.filterField}>
+              <Text style={styles.filterLabel}>Técnico</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.optionRow}>
+                <Pressable
+                  onPress={() => setTechnicianFilter('all')}
+                  style={[styles.optionChip, technicianFilter === 'all' && styles.optionChipActive]}
+                >
+                  <Text style={[styles.optionChipText, technicianFilter === 'all' && styles.optionChipTextActive]}>Todos</Text>
+                </Pressable>
+                {technicianOptions.map((technician) => (
+                  <Pressable
+                    key={technician}
+                    onPress={() => setTechnicianFilter(technician)}
+                    style={[styles.optionChip, technicianFilter === technician && styles.optionChipActive]}
+                  >
+                    <Text style={[styles.optionChipText, technicianFilter === technician && styles.optionChipTextActive]}>{technician}</Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </View>
+          ) : null}
+        </View>
 
         {filteredOrders.length > 0 ? (
           <View style={styles.listContent}>
@@ -355,6 +497,38 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     marginBottom: 12,
   },
+  agendaStrip: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    paddingHorizontal: 18,
+    marginBottom: 12,
+  },
+  agendaItem: {
+    flexGrow: 1,
+    flexBasis: '21%',
+    minWidth: 74,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.bgDeep,
+    paddingHorizontal: 11,
+    paddingVertical: 10,
+    gap: 5,
+  },
+  agendaLabel: {
+    color: colors.muted,
+    fontFamily: typography.mono,
+    fontSize: 9,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  agendaValue: {
+    color: colors.text,
+    fontFamily: typography.display,
+    fontSize: 22,
+    fontWeight: '900',
+  },
   metricCard: {
     width: '47.5%',
     position: 'relative',
@@ -411,6 +585,50 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   filterChipTextActive: {
+    color: colors.accent,
+  },
+  filterPanel: {
+    marginHorizontal: 18,
+    marginBottom: 12,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    padding: 12,
+    gap: 12,
+  },
+  filterField: {
+    gap: 8,
+  },
+  filterLabel: {
+    color: colors.muted,
+    fontFamily: typography.mono,
+    fontSize: 10,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  optionRow: {
+    gap: 8,
+  },
+  optionChip: {
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.bgDeep,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  optionChipActive: {
+    backgroundColor: 'rgba(245, 166, 35, 0.12)',
+    borderColor: 'rgba(245, 166, 35, 0.28)',
+  },
+  optionChipText: {
+    color: colors.muted2,
+    fontFamily: typography.body,
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  optionChipTextActive: {
     color: colors.accent,
   },
   listContent: {

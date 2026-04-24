@@ -98,6 +98,12 @@ Canal mais realista:
 - onboarding com conta demo
 - entrevistas com 10 a 20 prestadores
 
+Status Gold atual:
+- painel web ja opera ordens enriquecidas com cliente, telefone, endereco, data, prioridade, tecnico responsavel e checklist
+- filtros web por status, tecnico, prioridade, periodo, busca textual e radar de agenda
+- conta demo disponivel para demonstracao guiada e validacao rapida
+- pendente fora do codigo: executar entrevistas com 10 a 20 prestadores e registrar aprendizados
+
 ### Fase 3: mobile
 - app React Native com Expo
 - login compartilhado com a mesma API
@@ -105,6 +111,13 @@ Canal mais realista:
 - atualizacao de status no campo
 - notificacoes push
 - modo offline basico com sincronizacao
+
+Status Gold atual:
+- app Expo validado no Expo Go com login compartilhado e API configuravel
+- lista mobile com busca, status, prioridade, periodo, tecnico e resumo de agenda
+- detalhe da ordem com checklist, status, telefone, endereco, tecnico, foto de comprovante, ligacao, rota e WhatsApp
+- cache offline e fila de sincronizacao para status/checklist/comprovante
+- notificacoes locais prontas para development build; push remoto fica como etapa de infraestrutura de producao
 
 ### Fase 4: receita
 - trial gratuito
