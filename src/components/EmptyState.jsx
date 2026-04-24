@@ -3,7 +3,7 @@ import { FiClipboard } from 'react-icons/fi';
 
 function EmptyState({
   title = 'Nenhuma ordem cadastrada',
-  description = 'Comece com uma visita real para validar o fluxo do tecnico e do dono da operacao.',
+  description = 'Comece com uma visita real para validar o fluxo do técnico e do dono da operação.',
 }) {
   return (
     <div className="panel panel--padded">

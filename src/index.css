@@ -70,6 +70,12 @@ select {
   font: inherit;
 }
 
+input,
+textarea,
+select {
+  min-width: 0;
+}
+
 button {
   cursor: pointer;
 }
@@ -287,6 +293,7 @@ img {
 }
 
 .metric-chip {
+  min-width: 0;
   padding: 18px;
   background: color-mix(in srgb, var(--surface) 92%, transparent);
   border: 1px solid var(--border);
@@ -310,6 +317,7 @@ img {
   font-size: 1.85rem;
   font-weight: 800;
   color: var(--text);
+  overflow-wrap: anywhere;
 }
 
 .metric-chip__note {
@@ -329,7 +337,7 @@ img {
 
 .auth-points li {
   display: grid;
-  grid-template-columns: 10px 1fr;
+  grid-template-columns: 10px minmax(0, 1fr);
   gap: 14px;
   align-items: start;
 }
@@ -352,6 +360,7 @@ img {
 .auth-point__body {
   color: var(--muted);
   font-size: 0.95rem;
+  overflow-wrap: anywhere;
 }
 
 .auth-hero__footer {
@@ -526,6 +535,8 @@ img {
   padding: 0 16px;
   border-radius: var(--radius);
   transition: transform 0.18s ease, opacity 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+  text-align: center;
+  white-space: normal;
 }
 
 .button:disabled,
@@ -653,6 +664,8 @@ img {
 
 .nav-button__label {
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -682,7 +695,7 @@ img {
 
 .user-mini {
   display: grid;
-  grid-template-columns: 42px 1fr;
+  grid-template-columns: 42px minmax(0, 1fr);
   gap: 12px;
   align-items: center;
 }
@@ -704,6 +717,10 @@ img {
 .user-mini__name,
 .user-mini__role {
   display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .user-mini__name {
@@ -747,6 +764,7 @@ img {
   font-size: clamp(2rem, 3vw, 2.8rem);
   font-weight: 700;
   letter-spacing: -0.05em;
+  overflow-wrap: anywhere;
 }
 
 .page-description {
@@ -779,6 +797,12 @@ img {
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+  min-width: 0;
+}
+
+.section-header > *,
+.panel-header > * {
+  min-width: 0;
 }
 
 .section-title,
@@ -787,6 +811,7 @@ img {
   font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.04em;
+  overflow-wrap: anywhere;
 }
 
 .section-description,
@@ -813,6 +838,7 @@ img {
 }
 
 .panel {
+  min-width: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: color-mix(in srgb, var(--surface) 96%, transparent);
@@ -842,6 +868,7 @@ img {
 .notice-banner {
   justify-content: space-between;
   gap: 16px;
+  min-width: 0;
 }
 
 .notice-banner__dot,
@@ -866,6 +893,7 @@ img {
 
 .stat-card {
   position: relative;
+  min-width: 0;
   overflow: hidden;
   padding: 16px;
   border: 1px solid var(--border);
@@ -890,11 +918,13 @@ img {
 .stat-card--green { --stat-color: var(--success); }
 
 .stat-card__label {
+  display: block;
   font-family: 'DM Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted);
+  overflow-wrap: anywhere;
 }
 
 .stat-card__value {
@@ -908,6 +938,7 @@ img {
   margin-top: 8px;
   font-size: 11px;
   color: var(--muted);
+  overflow-wrap: anywhere;
 }
 
 .filter-chip-group,
@@ -923,6 +954,7 @@ img {
 }
 
 .filter-chip {
+  max-width: 100%;
   min-height: 36px;
   padding: 0 14px;
   border-radius: 999px;
@@ -933,6 +965,7 @@ img {
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
 .filter-chip.is-active {
@@ -948,6 +981,7 @@ img {
 }
 
 .spotlight-item {
+  min-width: 0;
   padding: 14px;
   border-radius: var(--radius);
   background: color-mix(in srgb, var(--surface2) 72%, transparent);
@@ -961,6 +995,7 @@ img {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted);
+  overflow-wrap: anywhere;
 }
 
 .spotlight-value {
@@ -968,6 +1003,7 @@ img {
   margin-top: 8px;
   font-size: 1.75rem;
   font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .spotlight-note {
@@ -975,9 +1011,11 @@ img {
   margin-top: 8px;
   color: var(--muted);
   font-size: 0.9rem;
+  overflow-wrap: anywhere;
 }
 
 .spotlight-banner {
+  min-width: 0;
   padding: 18px;
   border-radius: var(--radius-lg);
   border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
@@ -998,6 +1036,7 @@ img {
   font-family: 'Syne', sans-serif;
   font-size: 1.35rem;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .spotlight-banner__meta {
@@ -1012,6 +1051,11 @@ img {
   content: '\\2022';
   margin-right: 8px;
   color: var(--accent);
+}
+
+.spotlight-banner__meta span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .spotlight-banner__meta span:first-child::before {
@@ -1056,6 +1100,12 @@ img {
   border: 1px solid var(--border);
   background: color-mix(in srgb, var(--surface2) 72%, transparent);
   color: var(--text);
+  min-width: 0;
+}
+
+.checklist-chip span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .checklist-chip__remove {
@@ -1093,14 +1143,16 @@ img {
 
 .orders-table {
   display: grid;
+  min-width: 0;
 }
 
 .orders-table__header,
 .order-row__header {
   display: grid;
-  grid-template-columns: 0.8fr 2.1fr 1.05fr 1fr 1fr 1.2fr 0.95fr;
+  grid-template-columns: minmax(68px, 0.8fr) minmax(160px, 2.1fr) minmax(112px, 1.05fr) minmax(104px, 1fr) minmax(128px, 1fr) minmax(112px, 1.2fr) minmax(124px, 0.95fr);
   gap: 14px;
   align-items: center;
+  min-width: 0;
 }
 
 .orders-table__header {
@@ -1109,14 +1161,17 @@ img {
 }
 
 .orders-table__head {
+  min-width: 0;
   font-family: 'DM Mono', monospace;
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.16em;
   color: var(--muted);
+  overflow-wrap: anywhere;
 }
 
 .order-row {
+  min-width: 0;
   border-bottom: 1px solid var(--border);
   transition: background 0.18s ease;
 }
@@ -1141,6 +1196,7 @@ img {
   font-family: 'DM Mono', monospace;
   color: var(--muted);
   font-size: 0.82rem;
+  overflow-wrap: anywhere;
 }
 
 .order-id__stamp,
@@ -1160,16 +1216,19 @@ img {
   margin-top: 6px;
   font-size: 10px;
   color: var(--muted);
+  overflow-wrap: anywhere;
 }
 
 .order-service__title {
   font-weight: 600;
   color: var(--text);
+  overflow-wrap: anywhere;
 }
 
 .order-service__client {
   margin-top: 4px;
   color: var(--muted);
+  overflow-wrap: anywhere;
 }
 
 .order-service__meta {
@@ -1179,6 +1238,11 @@ img {
   margin-top: 8px;
   font-size: 0.88rem;
   color: var(--muted);
+}
+
+.order-service__meta span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .order-service__meta span::before {
@@ -1195,15 +1259,18 @@ img {
 .order-date {
   display: grid;
   gap: 4px;
+  min-width: 0;
 }
 
 .order-date__main {
   color: var(--text);
+  overflow-wrap: anywhere;
 }
 
 .order-date__time {
   font-size: 11px;
   color: var(--muted);
+  overflow-wrap: anywhere;
 }
 
 .status-badge,
@@ -1219,6 +1286,8 @@ img {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   border: 1px solid transparent;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .status-badge::before,
@@ -1267,9 +1336,10 @@ img {
 
 .order-tech {
   display: grid;
-  grid-template-columns: 32px 1fr;
+  grid-template-columns: 32px minmax(0, 1fr);
   gap: 10px;
   align-items: center;
+  min-width: 0;
 }
 
 .technician-avatar {
@@ -1278,8 +1348,13 @@ img {
 }
 
 .order-tech__name {
+  display: block;
+  min-width: 0;
   font-size: 0.9rem;
   color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .order-tech__role {
@@ -1289,6 +1364,9 @@ img {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .progress-meta {
@@ -1297,6 +1375,12 @@ img {
   gap: 12px;
   font-size: 0.85rem;
   color: var(--muted);
+  min-width: 0;
+}
+
+.progress-meta span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .progress-bar {
@@ -1326,6 +1410,7 @@ img {
 
 .note-box,
 .mini-panel {
+  min-width: 0;
   padding: 14px 16px;
   border-radius: var(--radius);
   border: 1px solid var(--border);
@@ -1344,6 +1429,7 @@ img {
 .note-box__body {
   color: var(--muted);
   line-height: 1.65;
+  overflow-wrap: anywhere;
 }
 
 .details-grid {
@@ -1360,7 +1446,7 @@ img {
 
 .checklist-item {
   display: grid;
-  grid-template-columns: 20px 1fr;
+  grid-template-columns: 20px minmax(0, 1fr);
   gap: 12px;
   align-items: start;
   width: 100%;
@@ -1391,6 +1477,7 @@ img {
 
 .checklist-item__label {
   color: var(--text);
+  overflow-wrap: anywhere;
 }
 
 .checklist-item.is-done .checklist-item__label {
@@ -1405,9 +1492,10 @@ img {
 
 .activity-item {
   display: grid;
-  grid-template-columns: 8px 1fr auto;
+  grid-template-columns: 8px minmax(0, 1fr) auto;
   gap: 12px;
   align-items: start;
+  min-width: 0;
 }
 
 .activity-dot {
@@ -1424,6 +1512,7 @@ img {
 .activity-item__text {
   font-size: 0.9rem;
   line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 
 .activity-item__time {
@@ -1465,12 +1554,14 @@ img {
   margin: 0;
   font-size: 1.3rem;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .empty-state__description {
   margin: 0;
   max-width: 460px;
   color: var(--muted);
+  overflow-wrap: anywhere;
 }
 
 .mobile-nav {
@@ -1504,6 +1595,10 @@ img {
   font-family: 'DM Mono', monospace;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 @media (max-width: 1080px) {
@@ -1515,9 +1610,26 @@ img {
     grid-template-columns: 1fr;
   }
 
-  .orders-table__header,
+  .orders-table__header {
+    display: none;
+  }
+
+  .order-row {
+    margin-bottom: 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--surface) 96%, transparent);
+    box-shadow: var(--shadow-soft);
+  }
+
   .order-row__header {
-    grid-template-columns: 0.9fr 1.8fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 18px;
+  }
+
+  .order-cell--service,
+  .order-cell--actions {
+    grid-column: 1 / -1;
   }
 
   .order-actions {
@@ -1581,21 +1693,13 @@ img {
     grid-template-columns: 1fr;
   }
 
-  .orders-table__header {
-    display: none;
-  }
-
-  .order-row {
-    margin-bottom: 14px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    background: color-mix(in srgb, var(--surface) 96%, transparent);
-    box-shadow: var(--shadow-soft);
-  }
-
   .order-row__header {
     grid-template-columns: 1fr;
-    padding: 18px;
+  }
+
+  .order-cell--service,
+  .order-cell--actions {
+    grid-column: auto;
   }
 
   .order-cell--id,

@@ -8,19 +8,19 @@ function TaskList({ tasks, technicianName, onStatusChange, onChecklistToggle, on
         <div>
           <span className="panel-kicker">Ordens</span>
           <h3 className="panel-title">Fila operacional</h3>
-          <p className="panel-description">Leitura em formato de despacho, com dados essenciais, progresso e acoes rapidas por OS.</p>
+          <p className="panel-description">Leitura em formato de despacho, com dados essenciais, progresso e ações rápidas por OS.</p>
         </div>
       </div>
 
       <div className="orders-table">
         <div className="orders-table__header">
           <span className="orders-table__head">ID</span>
-          <span className="orders-table__head">Servico / cliente</span>
+          <span className="orders-table__head">Serviço / cliente</span>
           <span className="orders-table__head">Agenda</span>
           <span className="orders-table__head">Status</span>
-          <span className="orders-table__head">Tecnico</span>
+          <span className="orders-table__head">Técnico</span>
           <span className="orders-table__head">Checklist</span>
-          <span className="orders-table__head">Acoes</span>
+          <span className="orders-table__head">Ações</span>
         </div>
 
         {tasks.map((task) => (

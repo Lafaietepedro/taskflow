@@ -4,7 +4,7 @@ const FILTER_OPTIONS = [
   { key: 'all', label: 'Todas' },
   { key: 'active', label: 'Pendentes' },
   { key: 'in_progress', label: 'Em andamento' },
-  { key: 'completed', label: 'Concluidas' },
+  { key: 'completed', label: 'Concluídas' },
 ];
 
 function TaskStats({ totalTasks, pendingTasks, inProgressTasks, completedTasks, filter, setFilter }) {
@@ -20,7 +20,7 @@ function TaskStats({ totalTasks, pendingTasks, inProgressTasks, completedTasks, 
       key: 'pending',
       label: 'Pendentes',
       value: pendingTasks,
-      note: 'Aguardando despacho ou confirmacao',
+      note: 'Aguardando despacho ou confirmação',
       tone: 'amber',
     },
     {
@@ -32,7 +32,7 @@ function TaskStats({ totalTasks, pendingTasks, inProgressTasks, completedTasks, 
     },
     {
       key: 'done',
-      label: 'Concluidas',
+      label: 'Concluídas',
       value: completedTasks,
       note: 'Prontas para faturar ou arquivar',
       tone: 'green',

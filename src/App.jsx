@@ -59,10 +59,10 @@ function Auth({ onAuth, theme, onToggleTheme }) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const authTitle = mode === 'login' ? 'Entrar na operacao' : 'Criar conta de equipe';
+  const authTitle = mode === 'login' ? 'Entrar na operação' : 'Criar conta de equipe';
   const authDescription = mode === 'login'
     ? 'Acesse o painel industrial do TaskFlow Field para organizar ordens, equipe e o fluxo de campo.'
-    : 'Cadastre a conta inicial da operacao para testar o produto, validar o fluxo e preparar a base de receita.';
+    : 'Cadastre a conta inicial da operação para testar o produto, validar o fluxo e preparar a base de receita.';
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -88,12 +88,12 @@ function Auth({ onAuth, theme, onToggleTheme }) {
         onAuth(session);
       } else {
         await register({ username, password });
-        setSuccess('Cadastro realizado. Faca login para continuar.');
+        setSuccess('Cadastro realizado. Faça login para continuar.');
         setMode('login');
         setPassword('');
       }
     } catch (requestError) {
-      setError(requestError.message || 'Erro de conexao.');
+      setError(requestError.message || 'Erro de conexão.');
     } finally {
       setLoading(false);
     }
@@ -121,7 +121,7 @@ function Auth({ onAuth, theme, onToggleTheme }) {
       persistSession(session);
       onAuth(session);
     } catch (requestError) {
-      setError(requestError.message || 'Nao foi possivel entrar na conta demo.');
+      setError(requestError.message || 'Não foi possível entrar na conta demo.');
     } finally {
       setLoading(false);
     }
@@ -145,14 +145,14 @@ function Auth({ onAuth, theme, onToggleTheme }) {
           <span className="auth-kicker">Dark industrial system</span>
           <h1 className="auth-title">Ordens, equipe e campo no mesmo painel.</h1>
           <p className="auth-description">
-            Produto pensado para equipes pequenas que precisam de contexto rapido, linguagem visual objetiva e operacao sem ruido.
+            Produto pensado para equipes pequenas que precisam de contexto rápido, linguagem visual objetiva e operação sem ruído.
           </p>
 
           <div className="auth-metrics">
             <div className="metric-chip">
               <span className="metric-chip__label">Tempo de resposta</span>
               <span className="metric-chip__value">10 min</span>
-              <span className="metric-chip__note">Meta de ativacao da primeira OS</span>
+              <span className="metric-chip__note">Meta de ativação da primeira OS</span>
             </div>
             <div className="metric-chip">
               <span className="metric-chip__label">Stack</span>
@@ -162,7 +162,7 @@ function Auth({ onAuth, theme, onToggleTheme }) {
             <div className="metric-chip">
               <span className="metric-chip__label">Perfil</span>
               <span className="metric-chip__value">Campo</span>
-              <span className="metric-chip__note">Tecnicos, autonomos e pequenas equipes</span>
+              <span className="metric-chip__note">Técnicos, autônomos e pequenas equipes</span>
             </div>
           </div>
 
@@ -170,7 +170,7 @@ function Auth({ onAuth, theme, onToggleTheme }) {
             <li>
               <div>
                 <span className="auth-point__title">Painel profissional</span>
-                <span className="auth-point__body">Dashboard, ordens e atividade com leitura rapida para quem decide e para quem executa.</span>
+                <span className="auth-point__body">Dashboard, ordens e atividade com leitura rápida para quem decide e para quem executa.</span>
               </div>
             </li>
             <li>
@@ -181,8 +181,8 @@ function Auth({ onAuth, theme, onToggleTheme }) {
             </li>
             <li>
               <div>
-                <span className="auth-point__title">Mesma API, multiplos clientes</span>
-                <span className="auth-point__body">O backend ja suporta web e mobile compartilhando sessao, ordens e checklist.</span>
+                <span className="auth-point__title">Mesma API, múltiplos clientes</span>
+                <span className="auth-point__body">O backend já suporta web e mobile compartilhando sessão, ordens e checklist.</span>
               </div>
             </li>
           </ul>
@@ -191,7 +191,7 @@ function Auth({ onAuth, theme, onToggleTheme }) {
         <div className="auth-hero__footer">
           <div>
             <div className="auth-footer__tag">Nicho validado</div>
-            <div className="auth-footer__line">Assistencia tecnica, instaladores, manutencao e visitas recorrentes.</div>
+            <div className="auth-footer__line">Assistência técnica, instaladores, manutenção e visitas recorrentes.</div>
           </div>
           <div>
             <div className="auth-footer__tag">Visual identity</div>
@@ -209,7 +209,7 @@ function Auth({ onAuth, theme, onToggleTheme }) {
           </div>
 
           <div className="form-field">
-            <label htmlFor="auth-username">Usuario</label>
+            <label htmlFor="auth-username">Usuário</label>
             <div className="input-shell">
               <FiUser className="input-shell__icon" size={18} />
               <input
@@ -217,7 +217,7 @@ function Auth({ onAuth, theme, onToggleTheme }) {
                 type="text"
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
-                placeholder="Equipe, tecnico ou responsavel"
+                placeholder="Equipe, técnico ou responsável"
                 className="input"
                 autoFocus
               />
@@ -234,7 +234,7 @@ function Auth({ onAuth, theme, onToggleTheme }) {
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 minLength={6}
-                placeholder="Minimo de 6 caracteres"
+                placeholder="Mínimo de 6 caracteres"
                 className="input"
               />
             </div>
@@ -248,7 +248,7 @@ function Auth({ onAuth, theme, onToggleTheme }) {
 
           <div className="button-row">
             <button type="submit" disabled={loading} className="button-primary" style={{ width: '100%' }}>
-              {loading ? 'Processando...' : mode === 'login' ? 'Entrar na operacao' : 'Criar conta'}
+              {loading ? 'Processando...' : mode === 'login' ? 'Entrar na operação' : 'Criar conta'}
               {!loading ? <FiArrowRight size={16} /> : null}
             </button>
           </div>
@@ -263,7 +263,7 @@ function Auth({ onAuth, theme, onToggleTheme }) {
           <div className="auth-form__switch">
             {mode === 'login' ? (
               <>
-                Nao tem conta?{' '}
+                Não tem conta?{' '}
                 <button
                   type="button"
                   className="button-link"
@@ -278,7 +278,7 @@ function Auth({ onAuth, theme, onToggleTheme }) {
               </>
             ) : (
               <>
-                Ja tem acesso?{' '}
+                Já tem acesso?{' '}
                 <button
                   type="button"
                   className="button-link"

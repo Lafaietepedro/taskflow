@@ -9,7 +9,7 @@ function ActivityFeed({ items }) {
           <div>
             <span className="panel-kicker">Atividade</span>
             <h3 className="panel-title">Feed operacional</h3>
-            <p className="panel-description">As proximas mudancas de status e criacoes de OS vao aparecer aqui.</p>
+            <p className="panel-description">As próximas mudanças de status e criações de OS vão aparecer aqui.</p>
           </div>
         </div>
         <div className="empty-state">
@@ -17,7 +17,7 @@ function ActivityFeed({ items }) {
             <FiActivity size={28} />
           </div>
           <h4 className="empty-state__title">Sem eventos recentes</h4>
-          <p className="empty-state__description">Quando as ordens comecarem a circular, o feed vai mostrar criacoes, inicios, conclusoes e lembretes.</p>
+          <p className="empty-state__description">Quando as ordens começarem a circular, o feed vai mostrar criações, inícios, conclusões e lembretes.</p>
         </div>
       </div>
     );
@@ -29,7 +29,7 @@ function ActivityFeed({ items }) {
         <div>
           <span className="panel-kicker">Atividade</span>
           <h3 className="panel-title">Feed operacional</h3>
-          <p className="panel-description">Visibilidade do que foi criado, iniciado, concluido e do que pede acompanhamento.</p>
+          <p className="panel-description">Visibilidade do que foi criado, iniciado, concluído e do que pede acompanhamento.</p>
         </div>
       </div>
 

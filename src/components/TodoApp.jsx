@@ -354,7 +354,7 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
     'new-order': editingTask ? 'Editar ordem de serviço' : 'Nova ordem de serviço',
     orders: 'Fila de serviços',
     activity: 'Atividade recente',
-    account: 'Conta e preferencias',
+    account: 'Conta e preferências',
   };
 
   const handleNavigate = (sectionId) => {
@@ -506,7 +506,7 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
                   <div className="spotlight-item">
                     <span className="spotlight-label">Equipe em rota</span>
                     <span className="spotlight-value">{inProgressTasks}</span>
-                    <span className="spotlight-note">Atendimentos ja em campo neste momento.</span>
+                    <span className="spotlight-note">Atendimentos já em campo neste momento.</span>
                   </div>
                   <div className="spotlight-item">
                     <span className="spotlight-label">Atrasadas</span>
@@ -537,7 +537,7 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
 
                 {nextOrder ? (
                   <div className="spotlight-banner">
-                    <span className="spotlight-banner__label">OS prioritaria</span>
+                    <span className="spotlight-banner__label">OS prioritária</span>
                     <h4 className="spotlight-banner__title">{nextOrder.title}</h4>
                     <div className="spotlight-banner__meta">
                       <span>{nextOrder.customerName || 'Cliente não informado'}</span>
@@ -702,7 +702,7 @@ function TodoApp({ session, onLogout, theme, onToggleTheme }) {
                 <ul className="auth-points" style={{ marginTop: 0 }}>
                   <li>
                     <div>
-                      <span className="auth-point__title">Dashboard com identidade propria</span>
+                      <span className="auth-point__title">Dashboard com identidade própria</span>
                       <span className="auth-point__body">A camada visual saiu do look genérico e passou a comunicar produto de operação de campo.</span>
                     </div>
                   </li>

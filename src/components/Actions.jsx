@@ -8,7 +8,7 @@ function Actions({ completedTasks, totalTasks, onClearCompleted }) {
           <span className="panel-kicker">Fechamento</span>
           <h3 className="panel-title">Arquivamento e faturamento</h3>
           <p className="panel-description">
-            {completedTasks} de {totalTasks} ordens ja estao prontas para sair do quadro operacional.
+            {completedTasks} de {totalTasks} ordens já estão prontas para sair do quadro operacional.
           </p>
         </div>
         <button
@@ -17,7 +17,7 @@ function Actions({ completedTasks, totalTasks, onClearCompleted }) {
           disabled={completedTasks === 0}
           className="button-ghost"
         >
-          Limpar concluidas
+          Limpar concluídas
         </button>
       </div>
     </div>
