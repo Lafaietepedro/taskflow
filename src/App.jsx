@@ -36,7 +36,7 @@ function readTheme() {
     return storedTheme;
   }
 
-  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  return 'light';
 }
 
 function persistTheme(theme) {
@@ -64,7 +64,7 @@ function Auth({ onAuth, theme, onToggleTheme }) {
   const selectedPlanOption = getPlanById(selectedPlan);
   const authTitle = mode === 'login' ? 'Entrar na operação' : 'Criar conta de equipe';
   const authDescription = mode === 'login'
-    ? 'Acesse o painel industrial do TaskFlow Field para organizar ordens, equipe e o fluxo de campo.'
+    ? 'Acesse o painel do TaskFlow Field para organizar ordens, equipe, agenda e execução em campo.'
     : `Comece com 7 dias de teste no plano ${selectedPlanOption.name} e valide o fluxo com uma equipe de campo.`;
 
   const handleSubmit = async (event) => {
@@ -135,7 +135,7 @@ function Auth({ onAuth, theme, onToggleTheme }) {
       <section className="auth-hero">
         <div className="auth-hero__top">
           <div className="logo-stack">
-            <div className="brand-mark" style={{ fontSize: '2rem' }}>
+            <div className="brand-mark">
               <span className="brand-mark__task">Task</span>
               <span className="brand-mark__flow">Flow</span>
             </div>
@@ -145,10 +145,10 @@ function Auth({ onAuth, theme, onToggleTheme }) {
         </div>
 
         <div className="auth-hero__content">
-          <span className="auth-kicker">Dark industrial system</span>
-          <h1 className="auth-title">Ordens, equipe e campo no mesmo painel.</h1>
+          <span className="auth-kicker">Field service platform</span>
+          <h1 className="auth-title">Gestão de campo clara para equipes enxutas.</h1>
           <p className="auth-description">
-            Produto pensado para equipes pequenas que precisam de contexto rápido, linguagem visual objetiva e operação sem ruído.
+            Centralize ordens, agenda, técnicos e execução em uma experiência simples para o gestor e prática para o time em campo.
           </p>
 
           <div className="auth-metrics">
@@ -158,9 +158,9 @@ function Auth({ onAuth, theme, onToggleTheme }) {
               <span className="metric-chip__note">Meta de ativação da primeira OS</span>
             </div>
             <div className="metric-chip">
-              <span className="metric-chip__label">Stack</span>
-              <span className="metric-chip__value">Web + API</span>
-              <span className="metric-chip__note">Base pronta para mobile</span>
+              <span className="metric-chip__label">Operação</span>
+              <span className="metric-chip__value">Web + Campo</span>
+              <span className="metric-chip__note">Painel e app conectados</span>
             </div>
             <div className="metric-chip">
               <span className="metric-chip__label">Perfil</span>
@@ -178,14 +178,14 @@ function Auth({ onAuth, theme, onToggleTheme }) {
             </li>
             <li>
               <div>
-                <span className="auth-point__title">Fluxo pronto para venda</span>
-                <span className="auth-point__body">Estrutura pensada para evoluir para assinatura, app mobile e uso real em equipes de campo.</span>
+                <span className="auth-point__title">Planos e trial</span>
+                <span className="auth-point__body">Assinatura, teste gratuito e registro de interesse comercial já fazem parte do fluxo.</span>
               </div>
             </li>
             <li>
               <div>
                 <span className="auth-point__title">Mesma API, múltiplos clientes</span>
-                <span className="auth-point__body">O backend já suporta web e mobile compartilhando sessão, ordens e checklist.</span>
+                <span className="auth-point__body">Painel e app compartilham sessão, ordens, checklist e histórico operacional.</span>
               </div>
             </li>
           </ul>
@@ -217,8 +217,8 @@ function Auth({ onAuth, theme, onToggleTheme }) {
             <div className="auth-footer__line">Assistência técnica, instaladores, manutenção e visitas recorrentes.</div>
           </div>
           <div>
-            <div className="auth-footer__tag">Visual identity</div>
-            <div className="auth-footer__line">Dark industrial com foco em velocidade de leitura.</div>
+            <div className="auth-footer__tag">Experiência</div>
+            <div className="auth-footer__line">Interface SaaS com foco em clareza operacional.</div>
           </div>
         </div>
       </section>

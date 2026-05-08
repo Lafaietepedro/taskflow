@@ -138,6 +138,10 @@ Status Gold atual:
 - painel de conta mostra plano, status comercial, dias restantes de trial e intenção de checkout
 - backend registra intenção de assinatura para contato comercial antes de integração com gateway real
 - métricas de ativação mostram primeira OS, checklist, técnico, agenda e sinais operacionais básicos
+- relatório CSV exportável das ordens disponível no painel web e no backend autenticado
+- estágio comercial da conta expõe trial ativo/expirado, assinatura solicitada e assinatura ativa
+- solicitação de assinatura exige contato comercial e aparece no painel com CTA e leitura de prontidão para cobrança
+- app mobile mostra plano, trial e etapa comercial no perfil do técnico/equipe
 
 Próximo passo fora do código:
 - abordar prestadores diretamente e tentar validar 3 interessados fortes ou pagantes manuais antes de implementar checkout real com Mercado Pago, Stripe ou outro provedor

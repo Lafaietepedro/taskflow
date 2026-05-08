@@ -21,6 +21,15 @@ function ProfileScreen({
   onLogout,
 }) {
   const notificationsUnavailable = notificationStatus?.permission === 'unavailable';
+  const currentUser = session.user || {};
+  const trialDaysRemaining = currentUser.trialDaysRemaining ?? 0;
+  const commercialStageLabel = currentUser.commercialStageLabel || (
+    currentUser.subscriptionStatus === 'checkout_requested'
+      ? 'Assinatura solicitada'
+      : currentUser.subscriptionStatus === 'active'
+      ? 'Assinatura ativa'
+      : currentUser.trialExpired ? 'Trial expirado' : 'Trial ativo'
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -41,8 +50,19 @@ function ProfileScreen({
 
         <View style={styles.card}>
           <Text style={styles.cardLabel}>USUÁRIO</Text>
-          <Text style={styles.cardValue}>{session.user?.username || 'Não informado'}</Text>
+          <Text style={styles.cardValue}>{currentUser.username || 'Não informado'}</Text>
           <Text style={styles.cardHint}>Este perfil representa a sessão ativa no dispositivo de campo.</Text>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardLabel}>PLANO E TRIAL</Text>
+          <Text style={styles.cardValue}>{currentUser.planLabel || 'Equipe'}</Text>
+          <Text style={styles.cardHint}>
+            {commercialStageLabel}
+            {currentUser.subscriptionStatus === 'checkout_requested'
+              ? currentUser.checkoutIntent?.contactValue ? ` | contato: ${currentUser.checkoutIntent.contactValue}` : ''
+              : ` | ${trialDaysRemaining} dia(s) restantes`}
+          </Text>
         </View>
 
         <View style={styles.metricsGrid}>
@@ -73,11 +93,11 @@ function ProfileScreen({
         <View style={styles.card}>
           <Text style={styles.cardLabel}>NOTIFICAÇÕES</Text>
           <Text style={styles.cardValue}>
-            {notificationsUnavailable ? 'Dev build necessário' : notificationStatus?.permission === 'granted' ? 'Ativas' : 'Pendentes'}
+            {notificationsUnavailable ? 'Indisponíveis na prévia' : notificationStatus?.permission === 'granted' ? 'Ativas' : 'Pendentes'}
           </Text>
           <Text style={styles.cardHint}>
             {notificationsUnavailable
-              ? 'Expo Go não é o ambiente ideal para validar expo-notifications. Use development build com EAS.'
+              ? 'Nesta prévia pelo Expo Go, os lembretes ficam desativados para evitar alertas incorretos.'
               : `Lembretes agendados para hoje: ${notificationStatus?.scheduledCount || 0}`}
           </Text>
           <Pressable onPress={onEnableTodayReminders} style={styles.secondaryButton}>

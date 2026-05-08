@@ -1,4 +1,5 @@
 import { apiFetch } from './api';
+import { API_URL } from '../config/env';
 
 export function fetchTasks(token) {
   return apiFetch('/tasks', { token });
@@ -33,4 +34,18 @@ export function deleteTask(token, taskId) {
     method: 'DELETE',
     token,
   });
+}
+
+export async function downloadTasksCsv(token) {
+  const response = await fetch(`${API_URL}/tasks/export.csv`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Erro ao exportar relatório.');
+  }
+
+  return response.blob();
 }

@@ -3,7 +3,7 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 
 const ORDER_REMINDERS_CHANNEL_ID = 'order-reminders';
-const EXPO_GO_NOTIFICATION_MESSAGE = 'Notificações locais devem ser testadas em development build. No Expo Go, este recurso fica desativado.';
+const EXPO_GO_NOTIFICATION_MESSAGE = 'Nesta prévia pelo Expo Go, notificações ficam desativadas.';
 
 export function areNotificationsAvailable() {
   return Constants.appOwnership !== 'expo';

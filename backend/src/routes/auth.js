@@ -97,6 +97,10 @@ router.post('/checkout-intent', auth, async (req, res) => {
   const notes = String(req.body.notes || '').trim();
 
   try {
+    if (!contactValue) {
+      return res.status(400).json({ error: 'Informe um WhatsApp ou contato para concluir a solicitação.' });
+    }
+
     const user = await User.findByIdAndUpdate(
       req.userId,
       {

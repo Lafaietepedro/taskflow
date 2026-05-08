@@ -1,6 +1,6 @@
 # TaskFlow Field Mobile
 
-Base mobile do produto em Expo consumindo a mesma API do projeto web.
+App mobile em Expo consumindo a mesma API do painel web do TaskFlow Field.
 
 ## O que ja existe
 
@@ -21,11 +21,9 @@ Base mobile do produto em Expo consumindo a mesma API do projeto web.
 - botão de acesso com conta demo compartilhada com o painel web
 - configuração por `EXPO_PUBLIC_API_URL`
 
-## Versão do Expo
+## Versão
 
-Este app está em **Expo SDK 54** para manter compatibilidade direta com o Expo Go instalado pela Play Store/App Store durante o desenvolvimento.
-
-O SDK 55 existe, mas no período de transição do SDK 55 o Expo Go das lojas pode ainda não abrir projetos nessa versão em alguns dispositivos. Quando o produto estiver pronto para uma etapa mais próxima de publicação, o caminho recomendado será criar um development build com EAS.
+Este app usa **Expo SDK 54** para manter compatibilidade direta com o Expo Go disponível nas lojas.
 
 ## Como rodar
 
@@ -36,7 +34,7 @@ npm install
 npm run start
 ```
 
-## Como testar em desenvolvimento
+## Teste local
 
 1. Suba o backend em outro terminal:
 
@@ -154,18 +152,16 @@ Use `localhost`, não `127.0.0.1`, porque o Expo pode escutar apenas no localhos
 
 ## Observações
 
-- Esta base foi criada manualmente para encaixar no monorepo atual.
-- A documentação oficial do Expo recomenda iniciar novos projetos com `npx create-expo-app@latest --template default@sdk-55` na fase atual do SDK 55.
+- O app mobile compartilha autenticação, ordens e checklist com o painel web.
 - A persistência local usa `expo-secure-store`, conforme a documentação oficial: https://docs.expo.dev/versions/v55.0.0/sdk/securestore/
 - O cache de ordens usa `@react-native-async-storage/async-storage` para leitura offline e para guardar a fila de alterações locais.
 - Quando a API volta, tocar em `Atualizar ordens` tenta enviar as pendências antes de buscar a lista nova.
 - Os lembretes atuais são notificações locais. Push remoto com tokens de dispositivo ainda exige backend e credenciais das lojas.
-- `expo-notifications` fica desativado no Expo Go para evitar avisos falsos; valide notificações em development build.
+- `expo-notifications` fica desativado no Expo Go para evitar avisos falsos na prévia.
 - Os comprovantes atuais trafegam como imagem compactada em `base64`. Para produção, o caminho natural é trocar por upload em storage.
 
-## Proximos passos fortes
+## Melhorias técnicas naturais
 
 - push remoto com tokens Expo/APNs/FCM
-- captura de foto e comprovação de execução
 - upload de comprovantes para storage externo
 - tratamento de conflitos quando a mesma ordem for editada em dois dispositivos

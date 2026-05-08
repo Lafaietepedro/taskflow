@@ -250,7 +250,7 @@ function App() {
       }));
 
       if (permission === 'unavailable') {
-        setMessage('Notificações devem ser testadas em development build. No Expo Go, o recurso fica desativado.');
+        setMessage('Nesta prévia pelo Expo Go, notificações ficam desativadas.');
         return;
       }
 

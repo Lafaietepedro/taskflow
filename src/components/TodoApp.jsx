@@ -1,23 +1,27 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   FiActivity,
+  FiAlertTriangle,
   FiCheckCircle,
   FiClipboard,
+  FiClock,
   FiCreditCard,
+  FiDownload,
   FiGrid,
   FiLogOut,
+  FiMapPin,
   FiMoon,
   FiPlusSquare,
   FiSun,
+  FiTrendingUp,
   FiUser,
 } from 'react-icons/fi';
 import AddTaskForm from './AddTaskForm';
-import TaskStats from './TaskStats';
 import TaskList from './TaskList';
 import Actions from './Actions';
 import EmptyState from './EmptyState';
 import ActivityFeed from './ActivityFeed';
-import { createTask, deleteTask, fetchTasks, updateTask, updateTaskStatus } from '../services/tasks';
+import { createTask, deleteTask, downloadTasksCsv, fetchTasks, updateTask, updateTaskStatus } from '../services/tasks';
 import { requestCheckoutIntent } from '../services/auth';
 import { buildOrderPayload } from '../utils/orderForm';
 import { PLAN_OPTIONS, getPlanById } from '../config/plans';
@@ -184,8 +188,8 @@ function TodoApp({ session, onLogout, onSessionUpdate, theme, onToggleTheme }) {
   const [editingTask, setEditingTask] = useState(null);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [checkoutPlan, setCheckoutPlan] = useState(session.user?.plan || 'team');
-  const [checkoutContact, setCheckoutContact] = useState('');
-  const [checkoutNotes, setCheckoutNotes] = useState('');
+  const [checkoutContact, setCheckoutContact] = useState(session.user?.checkoutIntent?.contactValue || '');
+  const [checkoutNotes, setCheckoutNotes] = useState(session.user?.checkoutIntent?.notes || '');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   useEffect(() => {
@@ -326,6 +330,12 @@ function TodoApp({ session, onLogout, onSessionUpdate, theme, onToggleTheme }) {
 
   const handleCheckoutIntent = async (event) => {
     event.preventDefault();
+
+    if (!checkoutContact.trim()) {
+      setMessage('Informe um WhatsApp ou contato para solicitar a assinatura.');
+      return;
+    }
+
     setCheckoutLoading(true);
     setMessage('');
 
@@ -343,6 +353,25 @@ function TodoApp({ session, onLogout, onSessionUpdate, theme, onToggleTheme }) {
       setMessage(error.message);
     } finally {
       setCheckoutLoading(false);
+    }
+  };
+
+  const handleExportReport = async () => {
+    try {
+      const reportBlob = await downloadTasksCsv(session.token);
+      const reportUrl = URL.createObjectURL(reportBlob);
+      const reportLink = document.createElement('a');
+      const dateStamp = new Date().toISOString().slice(0, 10);
+
+      reportLink.href = reportUrl;
+      reportLink.download = `taskflow-ordens-${dateStamp}.csv`;
+      document.body.appendChild(reportLink);
+      reportLink.click();
+      reportLink.remove();
+      URL.revokeObjectURL(reportUrl);
+      setMessage('Relatório CSV exportado com sucesso.');
+    } catch (error) {
+      setMessage(error.message || 'Erro ao exportar relatório.');
     }
   };
 
@@ -370,6 +399,7 @@ function TodoApp({ session, onLogout, onSessionUpdate, theme, onToggleTheme }) {
   const pendingTasks = tasks.filter((task) => task.status === 'pending').length;
   const inProgressTasks = tasks.filter((task) => task.status === 'in_progress').length;
   const overdueTasks = tasks.filter((task) => matchesPeriod(task, 'overdue')).length;
+  const todayTasks = tasks.filter((task) => matchesPeriod(task, 'today')).length;
   const scheduledThisWeekTasks = tasks.filter((task) => matchesPeriod(task, 'week')).length;
   const highPriorityTasks = tasks.filter((task) => task.priority === 'high' && task.status !== 'done').length;
   const activityItems = useMemo(() => deriveActivityItems(tasks), [tasks]);
@@ -383,6 +413,7 @@ function TodoApp({ session, onLogout, onSessionUpdate, theme, onToggleTheme }) {
   const currentUser = session.user || {};
   const currentPlan = getPlanById(currentUser.plan);
   const trialDaysRemaining = currentUser.trialDaysRemaining ?? calculateDaysRemaining(currentUser.trialEndsAt);
+  const trialExpired = Boolean(currentUser.trialExpired) || (trialDaysRemaining === 0 && currentUser.subscriptionStatus === 'trialing');
   const hasChecklist = tasks.some((task) => task.checklistItems?.length > 0);
   const hasTechnician = tasks.some((task) => task.assignedTechnician);
   const hasScheduledOrder = tasks.some((task) => task.serviceDate);
@@ -393,16 +424,142 @@ function TodoApp({ session, onLogout, onSessionUpdate, theme, onToggleTheme }) {
     { label: 'Agenda com data real', done: hasScheduledOrder },
   ];
   const activationScore = Math.round((activationGoals.filter((goal) => goal.done).length / activationGoals.length) * 100);
-  const checkoutStatusLabel = currentUser.subscriptionStatus === 'checkout_requested'
-    ? 'Assinatura solicitada'
-    : currentUser.subscriptionStatus === 'active'
-      ? 'Assinatura ativa'
-      : 'Trial ativo';
+  const checkoutStatusLabel = currentUser.commercialStageLabel || (
+    currentUser.subscriptionStatus === 'checkout_requested'
+      ? 'Assinatura solicitada'
+      : currentUser.subscriptionStatus === 'active'
+        ? 'Assinatura ativa'
+        : trialExpired ? 'Trial expirado' : 'Trial ativo'
+  );
+  const checkoutRequested = currentUser.subscriptionStatus === 'checkout_requested';
+  const checkoutRequestedAt = currentUser.checkoutIntent?.requestedAt
+    ? formatTimestamp(currentUser.checkoutIntent.requestedAt)
+    : null;
+  const revenueReadiness = activationScore >= 75 && totalTasks >= 3
+    ? 'Pronto para cobrança'
+    : activationScore >= 50
+      ? 'Validando valor'
+      : 'Ativação inicial';
+  const commercialNotice = checkoutRequested
+    ? {
+      title: 'Assinatura solicitada',
+      body: `Contato registrado${currentUser.checkoutIntent?.contactValue ? `: ${currentUser.checkoutIntent.contactValue}` : ''}. A equipe comercial pode seguir com a cobrança assistida.`,
+      tone: 'success',
+    }
+    : trialExpired
+      ? {
+        title: 'Trial encerrado',
+        body: 'A conta já passou do período gratuito. Solicite assinatura para transformar este uso em receita.',
+        tone: 'warning',
+      }
+      : {
+        title: `${trialDaysRemaining} dia(s) de trial restantes`,
+        body: 'Use este período para provar valor: criar OS real, concluir checklist, atribuir técnico e exportar relatório.',
+        tone: 'default',
+      };
+  const operationalSignal = overdueTasks > 0
+    ? {
+      tone: 'danger',
+      label: 'Atenção imediata',
+      title: `${overdueTasks} OS atrasada${overdueTasks > 1 ? 's' : ''}`,
+      body: 'Priorize reagendamento, contato com cliente e conclusão do checklist pendente.',
+    }
+    : inProgressTasks > 0
+      ? {
+        tone: 'active',
+        label: 'Operação em campo',
+        title: `${inProgressTasks} atendimento${inProgressTasks > 1 ? 's' : ''} em rota`,
+        body: 'Acompanhe execução, checklist e possíveis bloqueios antes do encerramento.',
+      }
+      : pendingTasks > 0
+        ? {
+          tone: 'warning',
+          label: 'Próximo movimento',
+          title: `${pendingTasks} OS aguardando despacho`,
+          body: 'Atribua técnico e agenda para tirar a fila do estado parado.',
+        }
+        : {
+          tone: 'success',
+          label: 'Carteira estável',
+          title: 'Sem fila crítica agora',
+          body: 'A operação está limpa. Bom momento para revisar agenda, relatório e receita.',
+        };
+  const dashboardMetrics = [
+    {
+      key: 'total',
+      label: 'Carteira',
+      value: totalTasks,
+      note: 'ordens cadastradas',
+      tone: 'blue',
+      filterKey: 'all',
+    },
+    {
+      key: 'pending',
+      label: 'Aguardando',
+      value: pendingTasks,
+      note: 'precisam de despacho',
+      tone: 'amber',
+      filterKey: 'active',
+    },
+    {
+      key: 'progress',
+      label: 'Em campo',
+      value: inProgressTasks,
+      note: 'em atendimento',
+      tone: 'orange',
+      filterKey: 'in_progress',
+    },
+    {
+      key: 'done',
+      label: 'Concluídas',
+      value: completedTasks,
+      note: `${completionRate}% de fechamento`,
+      tone: 'green',
+      filterKey: 'completed',
+    },
+  ];
+  const focusItems = [
+    {
+      icon: FiAlertTriangle,
+      label: 'Risco',
+      value: overdueTasks,
+      text: overdueTasks > 0 ? 'ordens atrasadas pedem ação' : 'sem atraso crítico',
+      tone: overdueTasks > 0 ? 'danger' : 'success',
+    },
+    {
+      icon: FiClock,
+      label: 'Hoje',
+      value: todayTasks,
+      text: todayTasks > 0 ? 'visitas previstas para hoje' : 'nenhuma visita marcada hoje',
+      tone: 'blue',
+    },
+    {
+      icon: FiAlertTriangle,
+      label: 'Prioridade',
+      value: highPriorityTasks,
+      text: highPriorityTasks > 0 ? 'serviços de alta prioridade abertos' : 'sem alta prioridade aberta',
+      tone: highPriorityTasks > 0 ? 'danger' : 'success',
+    },
+    {
+      icon: FiTrendingUp,
+      label: 'Semana',
+      value: scheduledThisWeekTasks,
+      text: 'visitas nos próximos 7 dias',
+      tone: 'amber',
+    },
+    {
+      icon: FiCheckCircle,
+      label: 'Ativação',
+      value: `${activationScore}%`,
+      text: revenueReadiness,
+      tone: activationScore >= 75 ? 'success' : 'orange',
+    },
+  ];
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: FiGrid, badge: String(totalTasks || 0) },
-    { id: 'new-order', label: 'Nova OS', icon: FiPlusSquare },
+    { id: 'dashboard', label: 'Dashboard', mobileLabel: 'Dash', icon: FiGrid, badge: String(totalTasks || 0) },
+    { id: 'new-order', label: 'Nova OS', mobileLabel: 'Nova', icon: FiPlusSquare },
     { id: 'orders', label: 'Ordens', icon: FiClipboard, badge: String(filteredTasks.length || 0) },
-    { id: 'activity', label: 'Atividade', icon: FiActivity, badge: String(activityItems.length || 0) },
+    { id: 'activity', label: 'Atividade', mobileLabel: 'Ativ.', icon: FiActivity, badge: String(activityItems.length || 0) },
     { id: 'account', label: 'Conta', icon: FiUser },
   ];
 
@@ -430,7 +587,7 @@ function TodoApp({ session, onLogout, onSessionUpdate, theme, onToggleTheme }) {
         {mobile ? (
           <>
             <Icon className="mobile-nav__icon" />
-            <span className="mobile-nav__label">{item.label}</span>
+            <span className="mobile-nav__label">{item.mobileLabel || item.label}</span>
           </>
         ) : (
           <>
@@ -449,7 +606,7 @@ function TodoApp({ session, onLogout, onSessionUpdate, theme, onToggleTheme }) {
     <div className="app-shell">
       <aside className="app-sidebar">
         <div className="logo-stack">
-          <div className="brand-mark" style={{ fontSize: '1.8rem' }}>
+          <div className="brand-mark">
             <span className="brand-mark__task">Task</span>
             <span className="brand-mark__flow">Flow</span>
           </div>
@@ -483,7 +640,7 @@ function TodoApp({ session, onLogout, onSessionUpdate, theme, onToggleTheme }) {
       <main className="app-main">
         <header className="app-topbar">
           <div className="topbar-logo">
-            <div className="brand-mark" style={{ fontSize: '1.4rem' }}>
+            <div className="brand-mark brand-mark--compact">
               <span className="brand-mark__task">Task</span>
               <span className="brand-mark__flow">Flow</span>
             </div>
@@ -503,6 +660,10 @@ function TodoApp({ session, onLogout, onSessionUpdate, theme, onToggleTheme }) {
               <FiLogOut size={15} />
               Sair
             </button>
+            <button type="button" className="button-ghost" onClick={handleExportReport}>
+              <FiDownload size={15} />
+              Exportar CSV
+            </button>
             <button type="button" className="button-primary" onClick={() => handleNavigate('new-order')}>
               <FiPlusSquare size={15} />
               Nova OS
@@ -521,82 +682,89 @@ function TodoApp({ session, onLogout, onSessionUpdate, theme, onToggleTheme }) {
             </div>
           ) : null}
 
-          <section id="section-dashboard" className="page-section">
-            <div className="section-header">
-              <div>
-                <span className="section-kicker">Visão geral</span>
-                <h2 className="section-title">Dashboard e ritmo operacional</h2>
-                <p className="section-description">KPIs com leitura rápida para o dono da operação e um resumo direto do que está puxando o dia.</p>
+          <section id="section-dashboard" className="dashboard-pro">
+            <div className="dashboard-command">
+              <div className="dashboard-command__copy">
+                <span className="dashboard-eyebrow">Centro de controle</span>
+                <h2 className="dashboard-command__title">Operação em foco.</h2>
+                <p className="dashboard-command__description">
+                  Resumo executivo da carteira, com o próximo movimento claro e atalhos para agir no fluxo de campo.
+                </p>
+                <div className="dashboard-command__actions">
+                  <button type="button" className="button-primary" onClick={() => handleNavigate('new-order')}>
+                    <FiPlusSquare size={16} />
+                    Criar OS
+                  </button>
+                  <button type="button" className="button-ghost" onClick={() => handleNavigate('orders')}>
+                    <FiClipboard size={16} />
+                    Ver fila
+                  </button>
+                </div>
               </div>
+
+              <aside className={`dashboard-signal dashboard-signal--${operationalSignal.tone}`}>
+                <span className="dashboard-signal__label">{operationalSignal.label}</span>
+                <strong className="dashboard-signal__title">{operationalSignal.title}</strong>
+                <span className="dashboard-signal__body">{operationalSignal.body}</span>
+              </aside>
             </div>
 
-            <TaskStats
-              totalTasks={totalTasks}
-              pendingTasks={pendingTasks}
-              inProgressTasks={inProgressTasks}
-              completedTasks={completedTasks}
-              filter={filter}
-              setFilter={setFilter}
-            />
+            <div className="metric-board" aria-label="Indicadores principais">
+              {dashboardMetrics.map((metric) => (
+                <button
+                  key={metric.key}
+                  type="button"
+                  className={`metric-card metric-card--${metric.tone} ${filter === metric.filterKey ? 'is-active' : ''}`}
+                  onClick={() => setFilter(metric.filterKey)}
+                >
+                  <span className="metric-card__label">{metric.label}</span>
+                  <strong className="metric-card__value">{metric.value}</strong>
+                  <span className="metric-card__note">{metric.note}</span>
+                </button>
+              ))}
+            </div>
 
-            <div className="dashboard-grid">
-              <div className="panel panel--padded">
-                <div className="section-header">
+            <div className="ops-overview">
+              <div className="ops-panel ops-panel--focus">
+                <div className="ops-panel__header">
                   <div>
-                    <span className="panel-kicker">Despacho</span>
-                    <h3 className="panel-title">Leitura tática do quadro</h3>
-                    <p className="panel-description">Um resumo do momento para decidir o que priorizar, cobrar ou deslocar.</p>
+                    <span className="dashboard-eyebrow">Foco do dia</span>
+                    <h3>O que merece atenção agora</h3>
                   </div>
+                  <span className="ops-panel__badge">{revenueReadiness}</span>
                 </div>
 
-                <div className="spotlight-grid">
-                  <div className="spotlight-item">
-                    <span className="spotlight-label">Conclusão</span>
-                    <span className="spotlight-value">{completionRate}%</span>
-                    <span className="spotlight-note">Taxa atual de fechamento da carteira.</span>
-                  </div>
-                  <div className="spotlight-item">
-                    <span className="spotlight-label">Fila crítica</span>
-                    <span className="spotlight-value">{pendingTasks}</span>
-                    <span className="spotlight-note">Ordens paradas aguardando movimento.</span>
-                  </div>
-                  <div className="spotlight-item">
-                    <span className="spotlight-label">Equipe em rota</span>
-                    <span className="spotlight-value">{inProgressTasks}</span>
-                    <span className="spotlight-note">Atendimentos já em campo neste momento.</span>
-                  </div>
-                  <div className="spotlight-item">
-                    <span className="spotlight-label">Atrasadas</span>
-                    <span className="spotlight-value">{overdueTasks}</span>
-                    <span className="spotlight-note">Ordens vencidas que ainda não foram concluídas.</span>
-                  </div>
-                  <div className="spotlight-item">
-                    <span className="spotlight-label">Semana</span>
-                    <span className="spotlight-value">{scheduledThisWeekTasks}</span>
-                    <span className="spotlight-note">Visitas com agenda nos próximos 7 dias.</span>
-                  </div>
-                  <div className="spotlight-item">
-                    <span className="spotlight-label">Alta prioridade</span>
-                    <span className="spotlight-value">{highPriorityTasks}</span>
-                    <span className="spotlight-note">Serviços abertos que exigem atenção rápida.</span>
-                  </div>
+                <div className="focus-list">
+                  {focusItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <div key={item.label} className={`focus-row focus-row--${item.tone}`}>
+                        <span className="focus-row__icon"><Icon size={18} /></span>
+                        <span className="focus-row__content">
+                          <span className="focus-row__label">{item.label}</span>
+                          <strong>{item.value}</strong>
+                          <span>{item.text}</span>
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
-              <div className="panel panel--padded">
-                <div className="section-header">
+              <div className="ops-panel">
+                <div className="ops-panel__header">
                   <div>
-                    <span className="panel-kicker">Próxima visita</span>
-                    <h3 className="panel-title">Radar de agenda</h3>
-                    <p className="panel-description">O que vem primeiro no cronograma e merece contexto pronto no painel.</p>
+                    <span className="dashboard-eyebrow">Agenda</span>
+                    <h3>Próxima visita</h3>
                   </div>
+                  <FiMapPin className="ops-panel__icon" size={22} />
                 </div>
 
                 {nextOrder ? (
-                  <div className="spotlight-banner">
-                    <span className="spotlight-banner__label">OS prioritária</span>
-                    <h4 className="spotlight-banner__title">{nextOrder.title}</h4>
-                    <div className="spotlight-banner__meta">
+                  <div className="next-visit-card">
+                    <span className="next-visit-card__status">OS prioritária</span>
+                    <h4>{nextOrder.title}</h4>
+                    <div className="next-visit-card__meta">
                       <span>{nextOrder.customerName || 'Cliente não informado'}</span>
                       <span>{formatDateLabel(nextOrder.serviceDate)}</span>
                       <span>{nextOrder.assignedTechnician || 'Técnico pendente'}</span>
@@ -604,8 +772,28 @@ function TodoApp({ session, onLogout, onSessionUpdate, theme, onToggleTheme }) {
                     </div>
                   </div>
                 ) : (
-                  <div className="note-box__body">Ainda não há visitas com data definida para destacar no radar.</div>
+                  <div className="next-visit-empty">
+                    <strong>Nenhuma visita agendada</strong>
+                    <span>Cadastre data e técnico em uma OS para o radar operacional ficar ativo.</span>
+                  </div>
                 )}
+              </div>
+
+              <div className="ops-panel ops-panel--revenue">
+                <div className="ops-panel__header">
+                  <div>
+                    <span className="dashboard-eyebrow">Receita</span>
+                    <h3>{commercialNotice.title}</h3>
+                  </div>
+                  <FiCreditCard className="ops-panel__icon" size={22} />
+                </div>
+                <p>{commercialNotice.body}</p>
+                <div className="activation-meter" aria-label={`Ativação em ${activationScore}%`}>
+                  <span style={{ width: `${activationScore}%` }} />
+                </div>
+                <button type="button" className="button-ghost" onClick={() => handleNavigate('account')}>
+                  Ver planos
+                </button>
               </div>
             </div>
           </section>
@@ -632,6 +820,10 @@ function TodoApp({ session, onLogout, onSessionUpdate, theme, onToggleTheme }) {
                   <h2 className="section-title">Lista de ordens</h2>
                   <p className="section-description">Quadro principal com busca, status, técnico, prioridade, agenda, checklist e ações para operar as OS de ponta a ponta.</p>
                 </div>
+                <button type="button" className="button-ghost" onClick={handleExportReport}>
+                  <FiDownload size={15} />
+                  Exportar relatório
+                </button>
               </div>
 
               <div className="search-bar">
@@ -741,13 +933,26 @@ function TodoApp({ session, onLogout, onSessionUpdate, theme, onToggleTheme }) {
                   </div>
                   <div className="spotlight-item">
                     <span className="spotlight-label">API</span>
-                    <span className="spotlight-value">Web + mobile</span>
-                    <span className="spotlight-note">Mesmo backend operando os dois clientes.</span>
+                    <span className="spotlight-value">Painel + app</span>
+                    <span className="spotlight-note">Dados sincronizados para gestão e execução em campo.</span>
                   </div>
                   <div className="spotlight-item">
                     <span className="spotlight-label">Plano</span>
                     <span className="spotlight-value">{currentPlan.name}</span>
-                    <span className="spotlight-note">{checkoutStatusLabel} com {trialDaysRemaining} dia(s) restantes.</span>
+                    <span className="spotlight-note">
+                      {checkoutStatusLabel}
+                      {checkoutRequestedAt ? ` em ${checkoutRequestedAt}.` : ` com ${trialDaysRemaining} dia(s) restantes.`}
+                    </span>
+                  </div>
+                  <div className="spotlight-item">
+                    <span className="spotlight-label">Receita</span>
+                    <span className="spotlight-value">{revenueReadiness}</span>
+                    <span className="spotlight-note">Combina ativação, volume de OS e etapa comercial da conta.</span>
+                  </div>
+                  <div className="spotlight-item">
+                    <span className="spotlight-label">Contato comercial</span>
+                    <span className="spotlight-value">{currentUser.checkoutIntent?.contactValue || 'Pendente'}</span>
+                    <span className="spotlight-note">Obrigatório para transformar intenção em venda assistida.</span>
                   </div>
                 </div>
               </div>
@@ -757,7 +962,7 @@ function TodoApp({ session, onLogout, onSessionUpdate, theme, onToggleTheme }) {
                   <div>
                     <span className="section-kicker">Receita</span>
                     <h2 className="section-title">Trial e assinatura</h2>
-                    <p className="section-description">Planos comerciais para demonstrar valor, registrar intenção de compra e preparar o checkout real.</p>
+                    <p className="section-description">Planos comerciais para demonstrar valor, registrar intenção de compra e conduzir a venda assistida.</p>
                   </div>
                 </div>
 
@@ -787,6 +992,7 @@ function TodoApp({ session, onLogout, onSessionUpdate, theme, onToggleTheme }) {
                         onChange={(event) => setCheckoutContact(event.target.value)}
                         placeholder="(11) 99999-9999"
                         className="input"
+                        required
                       />
                     </label>
                     <label className="form-field">
@@ -803,7 +1009,7 @@ function TodoApp({ session, onLogout, onSessionUpdate, theme, onToggleTheme }) {
 
                   <button type="submit" className="button-primary" disabled={checkoutLoading}>
                     <FiCreditCard size={15} />
-                    {checkoutLoading ? 'Registrando...' : 'Registrar intenção de assinatura'}
+                    {checkoutLoading ? 'Registrando...' : checkoutRequested ? 'Atualizar intenção de assinatura' : 'Registrar intenção de assinatura'}
                   </button>
                 </form>
               </div>
@@ -816,6 +1022,10 @@ function TodoApp({ session, onLogout, onSessionUpdate, theme, onToggleTheme }) {
                   <h2 className="section-title">Ativação e retenção</h2>
                   <p className="section-description">Indicadores práticos para saber se uma equipe entendeu valor antes de pedir pagamento.</p>
                 </div>
+                <button type="button" className="button-ghost" onClick={handleExportReport}>
+                  <FiDownload size={15} />
+                  Baixar CSV
+                </button>
               </div>
 
               <div className="activation-grid">

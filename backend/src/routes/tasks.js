@@ -8,6 +8,49 @@ const router = express.Router();
 
 const VALID_STATUSES = new Set(['pending', 'in_progress', 'done']);
 const VALID_PRIORITIES = new Set(['low', 'medium', 'high']);
+const CSV_COLUMNS = [
+  { header: 'ID', value: (task) => task.id },
+  { header: 'Servico', value: (task) => task.title },
+  { header: 'Status', value: (task) => task.status },
+  { header: 'Prioridade', value: (task) => task.priority },
+  { header: 'Cliente', value: (task) => task.customerName },
+  { header: 'Telefone', value: (task) => task.customerPhone },
+  { header: 'Endereco', value: (task) => task.address },
+  { header: 'Tecnico', value: (task) => task.assignedTechnician },
+  { header: 'Data do servico', value: (task) => formatCsvDate(task.serviceDate) },
+  { header: 'Checklist total', value: (task) => task.checklistItems.length },
+  { header: 'Checklist concluido', value: (task) => task.checklistItems.filter((item) => item.done).length },
+  { header: 'Comprovante', value: (task) => (task.proofPhoto ? 'sim' : 'nao') },
+  { header: 'Criada em', value: (task) => formatCsvDate(task.createdAt) },
+  { header: 'Atualizada em', value: (task) => formatCsvDate(task.updatedAt) },
+];
+
+function formatCsvDate(value) {
+  if (!value) {
+    return '';
+  }
+
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '' : date.toISOString();
+}
+
+function escapeCsvValue(value) {
+  const normalizedValue = String(value ?? '');
+  if (!/[",\n\r]/.test(normalizedValue)) {
+    return normalizedValue;
+  }
+
+  return `"${normalizedValue.replace(/"/g, '""')}"`;
+}
+
+function buildTasksCsv(tasks) {
+  const header = CSV_COLUMNS.map((column) => escapeCsvValue(column.header)).join(',');
+  const rows = tasks.map((task) => (
+    CSV_COLUMNS.map((column) => escapeCsvValue(column.value(task))).join(',')
+  ));
+
+  return [header, ...rows].join('\n');
+}
 
 function normalizeChecklistItems(items) {
   if (!Array.isArray(items)) {
@@ -112,6 +155,20 @@ router.get('/', auth, async (req, res) => {
     return res.json(tasks.map(serializeTask));
   } catch (_error) {
     return res.status(500).json({ error: 'Erro ao carregar tarefas.' });
+  }
+});
+
+router.get('/export.csv', auth, async (req, res) => {
+  try {
+    const tasks = await Task.find({ user: req.userId }).sort({ serviceDate: 1, createdAt: -1 });
+    const serializedTasks = tasks.map(serializeTask);
+    const csv = buildTasksCsv(serializedTasks);
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="taskflow-ordens.csv"');
+    return res.send(`\uFEFF${csv}`);
+  } catch (_error) {
+    return res.status(500).json({ error: 'Erro ao exportar relatório.' });
   }
 });
 

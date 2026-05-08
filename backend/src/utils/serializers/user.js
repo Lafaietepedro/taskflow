@@ -4,6 +4,14 @@ const PLAN_LABELS = {
   team: 'Equipe',
   pro: 'Campo Pro',
 };
+const COMMERCIAL_STAGE_LABELS = {
+  trialing: 'Trial ativo',
+  trial_expired: 'Trial expirado',
+  checkout_requested: 'Assinatura solicitada',
+  active: 'Assinatura ativa',
+  past_due: 'Pagamento pendente',
+  canceled: 'Assinatura cancelada',
+};
 const TRIAL_DAYS = 7;
 
 function getTrialEndFallback(user) {
@@ -26,6 +34,9 @@ function calculateTrialDaysRemaining(trialEndsAt) {
 
 function serializeUser(user) {
   const trialEndsAt = getTrialEndFallback(user);
+  const trialDaysRemaining = calculateTrialDaysRemaining(trialEndsAt);
+  const trialExpired = trialDaysRemaining === 0 && user.subscriptionStatus === 'trialing';
+  const commercialStage = trialExpired ? 'trial_expired' : user.subscriptionStatus || 'trialing';
 
   return {
     id: String(user._id),
@@ -35,9 +46,12 @@ function serializeUser(user) {
     plan: user.plan || 'team',
     planLabel: PLAN_LABELS[user.plan] || PLAN_LABELS.team,
     subscriptionStatus: user.subscriptionStatus || 'trialing',
+    commercialStage,
+    commercialStageLabel: COMMERCIAL_STAGE_LABELS[commercialStage] || COMMERCIAL_STAGE_LABELS.trialing,
     trialStartedAt: user.trialStartedAt || user.createdAt,
     trialEndsAt,
-    trialDaysRemaining: calculateTrialDaysRemaining(trialEndsAt),
+    trialDaysRemaining,
+    trialExpired,
     checkoutIntent: user.checkoutIntent || null,
   };
 }
